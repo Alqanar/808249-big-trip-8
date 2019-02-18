@@ -1,7 +1,7 @@
 # Личный проект «Большое путешествие» [![Build status][travis-image]][travis-url]
 
 * Студент: [Екатерина Шибакова](https://up.htmlacademy.ru/ecmascript/8/user/808249).
-* Наставник: `Неизвестно`.
+* Наставник: [Сергей Буртылев](https://htmlacademy.ru/profile/id3341).
 
 ---
 
