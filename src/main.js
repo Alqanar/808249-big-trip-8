@@ -10,6 +10,9 @@ import {
 import {
   preparedData
 } from './data.js';
+import {
+  getRandomInteger
+} from './utils';
 
 
 const containerElementFilter = document.querySelector(`.trip-filter`);
@@ -38,3 +41,11 @@ const renderBoardCards = (cardsFragment) => {
 };
 
 renderBoardCards(createCardsFragment(preparedData));
+
+
+containerElementFilter.addEventListener(
+    `click`,
+    () => renderBoardCards(
+        createCardsFragment(preparedData.slice(0, getRandomInteger(1, 7)))
+    )
+);
