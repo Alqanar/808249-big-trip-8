@@ -52,7 +52,7 @@ const createOffers = (specialsArray) => {
   return specials;
 };
 
-const renderOffers = (specials) =>
+const renderOffersTemplate = (specials) =>
   `<ul class="trip-point__offers">
     ${createOffers(specials)}
   </ul>`;
@@ -66,5 +66,5 @@ export const createCardTemplate = (element) =>
       <span class="trip-point__duration">${element.duration}</span>
     </p>
     <p class="trip-point__price">&euro;&nbsp;${element.price}</p>
-    ${renderOffers(element.specials)}
+    ${renderOffersTemplate(element.specials)}
   </article>`;
