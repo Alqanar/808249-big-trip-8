@@ -1,3 +1,8 @@
+import {
+  getMixedArray,
+  getRandomInteger
+} from './utils.js';
+
 const cardsData = [
   {
     id: 1,
@@ -9,7 +14,6 @@ const cardsData = [
     },
     duration: `1h 30m`,
     price: 20,
-    specials: [`uber`, `business`]
   },
   {
     id: 2,
@@ -21,7 +25,6 @@ const cardsData = [
     },
     duration: `1h 30m`,
     price: 20,
-    specials: [`business`, `meal`]
   },
   {
     id: 3,
@@ -33,7 +36,6 @@ const cardsData = [
     },
     duration: `1h 30m`,
     price: 20,
-    specials: [`rentCar`]
   },
   {
     id: 4,
@@ -45,7 +47,6 @@ const cardsData = [
     },
     duration: `1h 30m`,
     price: 20,
-    specials: [`breakfast`]
   },
   {
     id: 5,
@@ -67,7 +68,6 @@ const cardsData = [
       end: `17.00`
     },
     duration: `1h`,
-    specials: [`individual`]
   },
   {
     id: 7,
@@ -79,7 +79,6 @@ const cardsData = [
     },
     duration: `1h 30m`,
     price: 80,
-    specials: [`table`]
   }
 ];
 
@@ -89,30 +88,28 @@ const Specials = {
     price: 20
   },
   business: {
-    name: `Upgrade to business`,
+    name: `Switch to comfort class`,
     price: 20
   },
   meal: {
-    name: `Select meal`,
+    name: `Add meal`,
     price: 20
+  },
+  seats: {
+    name: `Choose seats`,
+    price: 10
   },
   rentCar: {
     name: `Rent a car`,
     price: 200
   },
-  breakfast: {
-    name: `Add breakfast`,
-    price: 20
-  },
   individual: {
     name: `Individual guide`,
     price: 300
-  },
-  table: {
-    name: `Order a specific table`,
-    price: 15
   }
 };
+
+const arraySpecials = Object.keys(Specials);
 
 const prepareDataForTemplate = (data) => {
   const {
@@ -122,7 +119,6 @@ const prepareDataForTemplate = (data) => {
     time,
     duration,
     price = 0,
-    specials = []
   } = data;
 
   return {
@@ -132,7 +128,7 @@ const prepareDataForTemplate = (data) => {
     time,
     duration,
     price,
-    specials: specials.map((element) => {
+    specials: getMixedArray(arraySpecials).slice(0, getRandomInteger(0, 2)).map((element) => {
       return {...Specials[element]};
     })
   };

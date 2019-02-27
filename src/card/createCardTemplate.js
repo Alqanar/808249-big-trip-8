@@ -32,11 +32,11 @@ const TYPES_MAP = {
     title: `Check into`
   },
   sightseeing: {
-    icon: `🎫`,
+    icon: `🏛️`,
     title: `Take a look at`
   },
   restaurant: {
-    icon: `🍽️`,
+    icon: `🍴`,
     title: `Visit the restaurant`
   }
 };
