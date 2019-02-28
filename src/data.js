@@ -3,82 +3,54 @@ import {
   getRandomInteger
 } from './utils.js';
 
-const cardsData = [
+const types = [`taxi`,
+  `flight`,
+  `drive`,
+  `checkIn`,
+  `transport`,
+  `sightseeing`,
+  `restaurant`
+];
+
+const destinations = [`Airport`,
+  `Geneva`,
+  `Chamonix`,
+  `hotel`,
+  `Gare Routière`,
+  `Mausolée Brunswick`,
+  `Scandale`
+];
+
+const prices = [10, 20, 40, 80];
+
+const times = [
   {
-    id: 1,
-    type: `taxi`,
-    destination: `Airport`,
     time: {
       start: `10.00`,
       end: `11.00`
     },
-    duration: `1h 30m`,
-    price: 20,
+    duration: `1h 30m`
   },
   {
-    id: 2,
-    type: `flight`,
-    destination: `Geneva`,
-    time: {
-      start: `10.00`,
-      end: `11.00`
-    },
-    duration: `1h 30m`,
-    price: 20,
-  },
-  {
-    id: 3,
-    type: `drive`,
-    destination: `Chamonix`,
-    time: {
-      start: `10.00`,
-      end: `11.00`
-    },
-    duration: `1h 30m`,
-    price: 20,
-  },
-  {
-    id: 4,
-    type: `checkIn`,
-    destination: `hotel`,
-    time: {
-      start: `10.00`,
-      end: `11.00`
-    },
-    duration: `1h 30m`,
-    price: 20,
-  },
-  {
-    id: 5,
-    type: `transport`,
-    destination: `Gare Routière`,
     time: {
       start: `12.00`,
       end: `15.30`
     },
-    duration: `3h 30m`,
-    price: 10
+    duration: `3h 30m`
   },
   {
-    id: 6,
-    type: `sightseeing`,
-    destination: `Mausolée Brunswick`,
     time: {
       start: `16.00`,
       end: `17.00`
     },
-    duration: `1h`,
+    duration: `1h`
   },
   {
-    id: 7,
-    type: `restaurant`,
-    destination: `Scandale`,
     time: {
       start: `18.30`,
       end: `20.00`
     },
     duration: `1h 30m`,
-    price: 80,
   }
 ];
 
@@ -111,27 +83,46 @@ const Specials = {
 
 const arraySpecials = Object.keys(Specials);
 
-const prepareDataForTemplate = (data) => {
-  const {
-    id,
-    type,
-    destination,
-    time,
-    duration,
-    price = 0,
-  } = data;
-
-  return {
-    id,
-    type,
-    destination,
-    time,
-    duration,
-    price,
-    specials: getMixedArray(arraySpecials).slice(0, getRandomInteger(0, 2)).map((element) => {
-      return {...Specials[element]};
-    })
-  };
+let getCardDatas = (params) => {
+  let cardDatas = [];
+  for (let i = 1; i < 8; i++) {
+    const cardData = {
+      id: i,
+      type: params.types[getRandomInteger(0, params.types.length - 1)],
+      destination: params.destinations[getRandomInteger(0, params.destinations.length - 1)],
+      time: params.times[getRandomInteger(0, params.times.length - 1)],
+      price: params.prices[getRandomInteger(0, params.prices.length - 1)],
+      specials: getMixedArray(arraySpecials).slice(0, getRandomInteger(0, 2)).map((element) => {
+        return {...Specials[element]};
+      })
+    };
+    cardDatas.push(cardData);
+  }
+  return cardDatas;
 };
 
-export const preparedData = cardsData.map((element) => prepareDataForTemplate(element));
+
+// const prepareDataForTemplate = (data) => {
+//   const {
+//     id,
+//     type,
+//     destination,
+//     time,
+//     duration,
+//     price = 0,
+//   } = data;
+
+//   return {
+//     id,
+//     type,
+//     destination,
+//     time,
+//     duration,
+//     price,
+//     specials: getMixedArray(arraySpecials).slice(0, getRandomInteger(0, 2)).map((element) => {
+//       return {...Specials[element]};
+//     })
+//   };
+// };
+
+export const preparedData = getCardDatas({types, destinations, times, prices, Specials});
