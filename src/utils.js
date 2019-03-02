@@ -6,3 +6,9 @@ export const createElement = (html) => {
 
 export const getRandomInteger = (min, max) =>
   min + Math.floor(Math.random() * (max + 1 - min));
+
+const getRandomComparator = () =>
+  Math.random() - 0.5;
+
+export const getMixedArray = (list) =>
+  list.slice(0).sort(getRandomComparator);

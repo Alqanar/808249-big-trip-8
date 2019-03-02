@@ -32,11 +32,11 @@ const TYPES_MAP = {
     title: `Check into`
   },
   sightseeing: {
-    icon: `🎫`,
+    icon: `🏛️`,
     title: `Take a look at`
   },
   restaurant: {
-    icon: `🍽️`,
+    icon: `🍴`,
     title: `Visit the restaurant`
   }
 };
@@ -62,7 +62,7 @@ export const createCardTemplate = (element) =>
     <i class="trip-icon">${TYPES_MAP[element.type].icon}</i>
     <h3 class="trip-point__title">${TYPES_MAP[element.type].title} ${element.destination}</h3>
     <p class="trip-point__schedule">
-      <span class="trip-point__timetable">${element.time.start}&nbsp;&mdash; ${element.time.end}</span>
+      <span class="trip-point__timetable">${element.time}</span>
       <span class="trip-point__duration">${element.duration}</span>
     </p>
     <p class="trip-point__price">&euro;&nbsp;${element.price}</p>
