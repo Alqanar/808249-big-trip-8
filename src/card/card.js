@@ -32,9 +32,9 @@ export default class Card {
     this._price = data.price;
     this._specials = data.specials;
 
-    this._state = {
-      isEdit: false
-    };
+    this._element = null;
+    this._onClickInjected = null;
+    this._onClick = this._onClick.bind(this);
   }
 
   get template() {
@@ -50,13 +50,41 @@ export default class Card {
   </article>`;
   }
 
-  render(container) {
-    if (this._element) {
-      container.removeChild(this._element);
-      this._element = null;
-    }
+  get element() {
+    return this._element;
+  }
 
+  get id() {
+    return this._id;
+  }
+
+  bind() {
+    this._element.addEventListener(`click`, this._onClick);
+  }
+
+  render() {
     this._element = createElement(this.template);
-    container.appendChild(this._element);
+    this.bind();
+    return this._element;
+  }
+
+  unbind() {
+    this._element.removeEventListener(`click`, this._onClick);
+  }
+
+  unrender() {
+    this.unbind();
+    this._element = null;
+  }
+
+  _onClick(event) {
+    if (this._onClickInjected) {
+      event.preventDefault();
+      this._onClickInjected(this);
+    }
+  }
+
+  setOnClick(onClickInjected) {
+    this._onClickInjected = onClickInjected;
   }
 }

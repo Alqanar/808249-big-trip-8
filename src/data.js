@@ -1,6 +1,8 @@
 import {
   getMixedArray,
-  getRandomInteger
+  getRandomInteger,
+  parseTimeToString,
+  getDuration
 } from './utils.js';
 import {
   TYPES_MAP
@@ -35,21 +37,21 @@ const getTime = () => {
   };
 };
 
-const addZero = (number) =>
-  String(number).padStart(2, `0`);
+// const addZero = (number) =>
+//   String(number).padStart(2, `0`);
 
-const parseTimeToString = ({startHour, startMinutes, endHour, endMinutes}) =>
-  `${addZero(startHour)}:${addZero(startMinutes)}&nbsp;&mdash; ${addZero(endHour)}:${addZero(endMinutes)}`;
+// const parseTimeToString = ({startHour, startMinutes, endHour, endMinutes}) =>
+//   `${addZero(startHour)}:${addZero(startMinutes)}&nbsp;&mdash; ${addZero(endHour)}:${addZero(endMinutes)}`;
 
-const getDuration = ({startHour, startMinutes, endHour, endMinutes}) => {
-  let hourDuration = endHour - startHour;
-  let minutesDuration = endMinutes - startMinutes;
-  if (minutesDuration < 0) {
-    hourDuration = hourDuration - 1;
-    minutesDuration = 60 + minutesDuration;
-  }
-  return `${hourDuration}h ${minutesDuration}m`;
-};
+// const getDuration = ({startHour, startMinutes, endHour, endMinutes}) => {
+//   let hourDuration = endHour - startHour;
+//   let minutesDuration = endMinutes - startMinutes;
+//   if (minutesDuration < 0) {
+//     hourDuration = hourDuration - 1;
+//     minutesDuration = 60 + minutesDuration;
+//   }
+//   return `${hourDuration}h ${minutesDuration}m`;
+// };
 
 const Specials = [`Order UBER`,
   `Switch to comfort class`,

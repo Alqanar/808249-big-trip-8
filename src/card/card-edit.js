@@ -1,5 +1,6 @@
 import {
-  createElement
+  createElement,
+  getDuration
 } from '../utils.js';
 import {
   TYPES_MAP
@@ -18,7 +19,7 @@ const createWays = (type, data) => {
   let moves = ``;
   let places = ``;
   for (let key in data) {
-    if (Object.hasOwnProperty(key)) {
+    if (data.hasOwnProperty(key)) {
       const way =
       `<input class="travel-way__select-input visually-hidden" 
         type="radio" 
@@ -157,9 +158,10 @@ export default class CardEdit {
     this._text = data.text;
     this._src = data.src;
 
-    this._state = {
-      isEdit: true
-    };
+    this._element = null;
+    this._submitHandler = null;
+    this._onSubmit = this._onSubmit.bind(this);
+    this._onSelectWay = this._onSelectWay.bind(this);
   }
 
   get template() {
@@ -186,13 +188,70 @@ export default class CardEdit {
     </article>`;
   }
 
-  render(container) {
-    if (this._element) {
-      container.removeChild(this._element);
-      this._element = null;
-    }
+  get element() {
+    return this._element;
+  }
 
+  bind() {
+    this._element.addEventListener(`click`, this._onSubmit);
+  }
+
+  _setupInterractive() {
+    this._element.querySelector(`.travel-way__select`)
+      .addEventListener(`change`, this._onSelectWay);
+  }
+
+  _onSelectWay(event) {
+    this._type = event.target.value;
+    this.reRender();
+  }
+
+  render() {
     this._element = createElement(this.template);
-    container.appendChild(this._element);
+    this.bind();
+    this._setupInterractive();
+    return this._element;
+  }
+
+  reRender() {
+    const oldElement = this._element;
+    this.unrender();
+    oldElement.parentNode.replaceChild(this.render(), oldElement);
+  }
+
+  unbind() {
+    this._element.removeEventListener(`click`, this._onSubmit);
+  }
+
+  unrender() {
+    this.unbind();
+    this._element.querySelector(`.travel-way__select`)
+      .removeEventListener(`change`, this._onSelectWay);
+    this._element = null;
+  }
+
+  _gatherData() {
+    return {
+      id: this._id,
+      type: this._element.querySelector(`.travel-way__select-input:checked`).value,
+      destination: this._element.querySelector(`.point__destination-input`).value,
+      time: this.element.querySelector(`.point__time .point__input`).value,
+      duration: getDuration(), /* TO DO */
+      price: this._element.querySelector(`.point__price .point__input`).value,
+      specials: this._specials,
+      text: this._text,
+      src: this._src
+    };
+  }
+
+  _onSubmit(event) {
+    if (this._submitHandler) {
+      event.preventDefault();
+      this._submitHandler(this._id); /* TO DO */
+    }
+  }
+
+  setOnSubmit(submitHandler) {
+    this._submitHandler = submitHandler;
   }
 }

@@ -19,18 +19,21 @@ export const renderFilters = (filterElements) => {
   return containerElementFilter.appendChild(createFiltersElements(filterElements));
 };
 
+function onClickCard(card) {
+  const cardData = preparedData.find(({id}) => card.id === id);
+  const cardEdit = new CardEdit(cardData);
+  cardEdit.render();
+  containerCards.replaceChild(cardEdit.element, card.element);
+  card.unrender();
+}
 
 export const renderBoardCards = (data) => {
   containerCards.innerHTML = ``;
   for (let element of data) {
     let card = new Card(element);
-    card.render(containerCards);
+    card.setOnClick(onClickCard);
+    containerCards.appendChild(card.render());
   }
-};
-
-export const renderBoardEditCard = (data) => {
-  let cardEdit = new CardEdit(data[0]);
-  cardEdit.render(containerCards);
 };
 
 
