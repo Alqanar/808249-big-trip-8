@@ -1,15 +1,14 @@
 import {
   createFiltersElements
 } from './filters/createFiltersElements.js';
-import {
-  createCardElement
-} from './card/createCardElement.js';
+import Card from './card/card.js';
+import CardEdit from './card/card-edit.js';
 import {
   preparedData
 } from './data.js';
 import {
   getRandomInteger
-} from './utils';
+} from './utils.js';
 
 const containerElementFilter = document.querySelector(`.trip-filter`);
 const containerCards = document.querySelector(`.trip-day__items`);
@@ -21,23 +20,22 @@ export const renderFilters = (filterElements) => {
 };
 
 
-export const createCardsFragment = (arrayCards) => {
-  let cardsFragment = document.createDocumentFragment();
-  for (let elementCards of arrayCards) {
-    cardsFragment.appendChild(createCardElement(elementCards));
+export const renderBoardCards = (data) => {
+  containerCards.innerHTML = ``;
+  for (let element of data) {
+    let card = new Card(element);
+    card.render(containerCards);
   }
-  return cardsFragment;
 };
 
-export const renderBoardCards = (cardsFragment) => {
-  containerCards.innerHTML = ``;
-  return containerCards.appendChild(cardsFragment);
+export const renderBoardEditCard = (data) => {
+  let cardEdit = new CardEdit(data[0]);
+  cardEdit.render(containerCards);
 };
 
 
 containerElementFilter.addEventListener(
     `click`,
-    () => renderBoardCards(
-        createCardsFragment(preparedData.slice(0, getRandomInteger(1, 7)))
+    () => renderBoardCards(preparedData.slice(0, getRandomInteger(1, 7))
     )
 );

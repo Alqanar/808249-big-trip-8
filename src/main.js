@@ -7,10 +7,12 @@ import {
 import {
   renderFilters,
   renderBoardCards,
-  createCardsFragment
+  renderBoardEditCard
 } from './app.js';
 
 
 renderFilters(NamesFilterDict);
 
-renderBoardCards(createCardsFragment(preparedData));
+renderBoardCards(preparedData);
+
+renderBoardEditCard(preparedData);
