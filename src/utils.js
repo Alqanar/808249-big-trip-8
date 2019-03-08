@@ -17,7 +17,7 @@ const addZero = (number) =>
   String(number).padStart(2, `0`);
 
 export const parseTimeToString = ({startHour, startMinutes, endHour, endMinutes}) =>
-  `${addZero(startHour)}:${addZero(startMinutes)} &mdash; ${addZero(endHour)}:${addZero(endMinutes)}`;
+  `${addZero(startHour)}:${addZero(startMinutes)} — ${addZero(endHour)}:${addZero(endMinutes)}`;
 
 export const getDuration = ({startHour, startMinutes, endHour, endMinutes}) => {
   let hourDuration = endHour - startHour;

@@ -1,5 +1,6 @@
 import {
   createElement,
+  parseTimeToString,
   getDuration
 } from '../utils.js';
 import {
@@ -235,6 +236,16 @@ export default class CardEdit {
       Invalid value entered! Enter a value in the format from ${min} to ${max}`;
   }
 
+  _changeSeparatorTime(event) {
+    if (typeof (this._timeObject.startMinutes) === `number`) {
+      this._timeObject.startMinutes = 0;
+    }
+    if (typeof (this._timeObject.endMinutes) === `number`) {
+      this._timeObject.endMinutes = 0;
+    }
+    event.target.value = parseTimeToString(this._timeObject);
+  }
+
   _validateTime(string) {
     const startTime = string.split(` `)[0];
     const endTime = string.split(` `)[2];
@@ -258,6 +269,7 @@ export default class CardEdit {
 
   _onChangeTime(event) {
     this._feelTime(event.target.value);
+    this._changeSeparatorTime(event);
     this._validateTime(event.target.value);
   }
 
