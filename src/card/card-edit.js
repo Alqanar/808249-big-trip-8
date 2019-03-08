@@ -15,6 +15,13 @@ const Destinations = [`Airport`,
   `Scandale`
 ];
 
+const MAX_HOURS = `24`;
+const MAX_HOURS_START = `23`;
+const MIN_HOURS = `00`;
+const MAX_MINUTES = `59`;
+const MIN_MINUTES = `00`;
+const FORMAT_TIME = `HH:MM`;
+
 const createWays = (type, data) => {
   let moves = ``;
   let places = ``;
@@ -162,6 +169,14 @@ export default class CardEdit {
     this._submitHandler = null;
     this._onSubmit = this._onSubmit.bind(this);
     this._onSelectWay = this._onSelectWay.bind(this);
+    this._onChangeTime = this._onChangeTime.bind(this);
+
+    this._timeObject = {
+      startHour: null,
+      startMinutes: null,
+      endHour: null,
+      endMinutes: null
+    };
   }
 
   get template() {
@@ -193,17 +208,57 @@ export default class CardEdit {
   }
 
   bind() {
-    this._element.addEventListener(`click`, this._onSubmit);
+    this._element.querySelector(`.point form`).addEventListener(`submit`, this._onSubmit);
   }
 
   _setupInterractive() {
     this._element.querySelector(`.travel-way__select`)
       .addEventListener(`change`, this._onSelectWay);
+    this._element.querySelector(`.point__time .point__input`)
+      .addEventListener(`change`, this._onChangeTime);
   }
 
   _onSelectWay(event) {
     this._type = event.target.value;
     this.reRender();
+  }
+
+  _feelTime(string) {
+    this._timeObject.startHour = parseInt(string.slice(0, 2), 10);
+    this._timeObject.startMinutes = parseInt(string.slice(3, 5), 10);
+    this._timeObject.endHour = parseInt(string.slice(8, 10), 10);
+    this._timeObject.endMinutes = parseInt(string.slice(11, 13), 10);
+  }
+
+  _generateError(min, max) {
+    return `
+      Invalid value entered! Enter a value in the format from ${min} to ${max}`;
+  }
+
+  _validateTime(string) {
+    const startTime = string.split(` `)[0];
+    const endTime = string.split(` `)[2];
+    let error = ``;
+
+    if (startTime.length !== 5 || endTime.length !== 5) {
+      error = `Invalid value entered! Enter a value in the format ${FORMAT_TIME}`;
+    } else if (this._timeObject.startHour > parseInt(MAX_HOURS_START, 10) || this._timeObject.startHour < parseInt(MIN_HOURS, 10)) {
+      error = this._generateError(MIN_HOURS, MAX_HOURS_START);
+    } else if (this._timeObject.startMinutes > parseInt(MAX_MINUTES, 10) || this._timeObject.startMinutes < parseInt(MIN_MINUTES, 10) ||
+      this._timeObject.endMinutes > parseInt(MAX_MINUTES, 10) || this._timeObject.endMinutes < parseInt(MIN_MINUTES, 10)) {
+      error = this._generateError(MAX_MINUTES, MIN_MINUTES);
+    } else if (parseInt(this._timeObject.endHour, 10) < parseInt(this._timeObject.startHour, 10)) {
+      error = `Invalid value entered! The end time of the event must be later than its start!`;
+    } else if (this._timeObject.endHour > parseInt(MAX_HOURS, 10) || this._timeObject.endHour < parseInt(MIN_HOURS, 10)) {
+      error = this._generateError(MIN_HOURS, MAX_HOURS);
+    }
+
+    event.target.setCustomValidity(error);
+  }
+
+  _onChangeTime(event) {
+    this._feelTime(event.target.value);
+    this._validateTime(event.target.value);
   }
 
   render() {
@@ -220,23 +275,27 @@ export default class CardEdit {
   }
 
   unbind() {
-    this._element.removeEventListener(`click`, this._onSubmit);
+    this._element.querySelector(`.point form`).removeEventListener(`submit`, this._onSubmit);
   }
 
   unrender() {
     this.unbind();
     this._element.querySelector(`.travel-way__select`)
       .removeEventListener(`change`, this._onSelectWay);
+    this._element.querySelector(`.point__time .point__input`)
+      .removeEventListener(`change`, this._onChangeTime);
     this._element = null;
   }
 
   _gatherData() {
+    const stringTime = this.element.querySelector(`.point__time .point__input`).value;
+    this._feelTime(stringTime);
     return {
       id: this._id,
       type: this._element.querySelector(`.travel-way__select-input:checked`).value,
       destination: this._element.querySelector(`.point__destination-input`).value,
-      time: this.element.querySelector(`.point__time .point__input`).value,
-      duration: getDuration(), /* TO DO */
+      time: stringTime,
+      duration: getDuration(this._timeObject),
       price: this._element.querySelector(`.point__price .point__input`).value,
       specials: this._specials,
       text: this._text,
@@ -245,9 +304,9 @@ export default class CardEdit {
   }
 
   _onSubmit(event) {
+    event.preventDefault();
     if (this._submitHandler) {
-      event.preventDefault();
-      this._submitHandler(this._id); /* TO DO */
+      this._submitHandler(this, this._gatherData());
     }
   }
 
