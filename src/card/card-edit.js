@@ -50,7 +50,7 @@ export default class CardEdit {
     this.reRender();
   }
 
-  _feelTime(string) {
+  _fillTime(string) {
     this._timeObject.startHour = parseInt(string.slice(0, 2), 10);
     this._timeObject.startMinutes = parseInt(string.slice(3, 5), 10);
     this._timeObject.endHour = parseInt(string.slice(8, 10), 10);
@@ -72,7 +72,7 @@ export default class CardEdit {
   }
 
   _onChangeTime(event) {
-    this._feelTime(event.target.value);
+    this._fillTime(event.target.value);
     this._changeSeparatorTime(event.target);
     this._validateTime(event.target);
   }
@@ -102,7 +102,7 @@ export default class CardEdit {
 
   _gatherData() {
     const stringTime = this.element.querySelector(`.point__time .point__input`).value;
-    this._feelTime(stringTime);
+    this._fillTime(stringTime);
     return {
       id: this._data.id,
       type: this._element.querySelector(`.travel-way__select-input:checked`).value,
