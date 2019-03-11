@@ -6,11 +6,10 @@ import {
 } from './data.js';
 import {
   renderFilters,
-  renderBoardCards,
-  createCardsFragment
+  renderBoardCards
 } from './app.js';
 
 
 renderFilters(NamesFilterDict);
 
-renderBoardCards(createCardsFragment(preparedData));
+renderBoardCards(preparedData);

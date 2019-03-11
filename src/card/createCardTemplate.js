@@ -1,45 +1,7 @@
-const TYPES_MAP = {
-  taxi: {
-    icon: `🚕`,
-    title: `Taxi to`
-  },
-  bus: {
-    icon: `🚌`,
-    title: `Get to`
-  },
-  train: {
-    icon: `🚄`,
-    title: `Get to`
-  },
-  ship: {
-    icon: `🛳️`,
-    title: `Take a boat trip on`
-  },
-  transport: {
-    icon: `🚊`,
-    title: `Get to stop`
-  },
-  drive: {
-    icon: `🚗`,
-    title: `Drive to`
-  },
-  flight: {
-    icon: `✈️`,
-    title: `Flight to`
-  },
-  checkIn: {
-    icon: `🏨`,
-    title: `Check into`
-  },
-  sightseeing: {
-    icon: `🏛️`,
-    title: `Take a look at`
-  },
-  restaurant: {
-    icon: `🍴`,
-    title: `Visit the restaurant`
-  }
-};
+import {
+  TYPES_MAP
+} from '../trip-types.js';
+
 
 const createOffers = (specialsArray) => {
   let specials = ``;
@@ -57,14 +19,15 @@ const renderOffersTemplate = (specials) =>
     ${createOffers(specials)}
   </ul>`;
 
-export const createCardTemplate = (element) =>
+
+export const getTemplate = (data) =>
   `<article class="trip-point">
-    <i class="trip-icon">${TYPES_MAP[element.type].icon}</i>
-    <h3 class="trip-point__title">${TYPES_MAP[element.type].title} ${element.destination}</h3>
+    <i class="trip-icon">${TYPES_MAP[data.type].icon}</i>
+    <h3 class="trip-point__title">${TYPES_MAP[data.type].title} ${data.destination}</h3>
     <p class="trip-point__schedule">
-      <span class="trip-point__timetable">${element.time}</span>
-      <span class="trip-point__duration">${element.duration}</span>
+      <span class="trip-point__timetable">${data.time}</span>
+      <span class="trip-point__duration">${data.duration}</span>
     </p>
-    <p class="trip-point__price">&euro;&nbsp;${element.price}</p>
-    ${renderOffersTemplate(element.specials)}
+    <p class="trip-point__price">&euro;&nbsp;${data.price}</p>
+    ${renderOffersTemplate(data.specials)}
   </article>`;

@@ -1,7 +1,14 @@
+const MAX_HOURS = `24`;
+const MAX_HOURS_START = `23`;
+const MIN_HOURS = `00`;
+const MAX_MINUTES = `59`;
+const MIN_MINUTES = `00`;
+const FORMAT_TIME = `HH:MM`;
+
 export const createElement = (html) => {
-  const template = document.createElement(`template`);
-  template.innerHTML = html;
-  return template.content;
+  const newElement = document.createElement(`div`);
+  newElement.innerHTML = html;
+  return newElement.firstChild;
 };
 
 export const getRandomInteger = (min, max) =>
@@ -12,3 +19,43 @@ const getRandomComparator = () =>
 
 export const getMixedArray = (list) =>
   list.slice(0).sort(getRandomComparator);
+
+const addZero = (number) =>
+  String(number).padStart(2, `0`);
+
+export const parseTimeToString = ({startHour, startMinutes, endHour, endMinutes}) =>
+  `${addZero(startHour)}:${addZero(startMinutes)} — ${addZero(endHour)}:${addZero(endMinutes)}`;
+
+export const getDuration = ({startHour, startMinutes, endHour, endMinutes}) => {
+  let hourDuration = endHour - startHour;
+  let minutesDuration = endMinutes - startMinutes;
+  if (minutesDuration < 0) {
+    hourDuration = hourDuration - 1;
+    minutesDuration = 60 + minutesDuration;
+  }
+  return `${hourDuration}h ${minutesDuration}m`;
+};
+
+const generateError = (min, max) =>
+  `Invalid value entered! Enter a value in the format from ${min} to ${max}`;
+
+export const validateTime = (string, time) => {
+  const startTime = string.split(` `)[0];
+  const endTime = string.split(` `)[2];
+  let error = ``;
+
+  if (startTime.length !== 5 || endTime.length !== 5) {
+    error = `Invalid value entered! Enter a value in the format ${FORMAT_TIME}`;
+  } else if (time.startHour > parseInt(MAX_HOURS_START, 10) || time.startHour < parseInt(MIN_HOURS, 10)) {
+    error = generateError(MIN_HOURS, MAX_HOURS_START);
+  } else if (time.startMinutes > parseInt(MAX_MINUTES, 10) || time.startMinutes < parseInt(MIN_MINUTES, 10) ||
+    time.endMinutes > parseInt(MAX_MINUTES, 10) || time.endMinutes < parseInt(MIN_MINUTES, 10)) {
+    error = generateError(MAX_MINUTES, MIN_MINUTES);
+  } else if (parseInt(time.endHour, 10) < parseInt(time.startHour, 10)) {
+    error = `Invalid value entered! The end time of the event must be later than its start!`;
+  } else if (time.endHour > parseInt(MAX_HOURS, 10) || time.endHour < parseInt(MIN_HOURS, 10)) {
+    error = generateError(MIN_HOURS, MAX_HOURS);
+  }
+
+  return error;
+};
