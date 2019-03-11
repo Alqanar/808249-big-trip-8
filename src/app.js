@@ -19,40 +19,28 @@ export const renderFilters = (filterElements) => {
   return containerElementFilter.appendChild(createFiltersElements(filterElements));
 };
 
-const replaceData = (dataCard) => {
-  for (let i = 0; i < preparedData.length; i++) {
-    if (preparedData[i].id === dataCard.id) {
-      return i;
-    }
-  }
-  return -1;
-};
-
-const onSubmitCardEdit = (cardEdit, dataCard) => {
-  const card = new Card(dataCard);
-  card.render();
-  containerCards.replaceChild(card.element, cardEdit.element);
-  card.setOnClick(onClickCard);
-  preparedData.splice(replaceData(dataCard), 1, dataCard);
-  cardEdit.unrender();
-};
-
 const onClickCard = (card) => {
-  const cardData = preparedData.find(({id}) => card.id === id);
-  const cardEdit = new CardEdit(cardData);
+  const cardEdit = new CardEdit(card.data);
   cardEdit.render();
   containerCards.replaceChild(cardEdit.element, card.element);
-  cardEdit.setOnSubmit(onSubmitCardEdit);
+  cardEdit.setOnSubmit((dataCard) => {
+    card.saveChanges(dataCard);
+    card.render();
+    containerCards.replaceChild(card.element, cardEdit.element);
+    cardEdit.unrender();
+  });
   card.unrender();
 };
 
 export const renderBoardCards = (data) => {
   containerCards.innerHTML = ``;
+  const fragment = document.createDocumentFragment();
   for (let element of data) {
     let card = new Card(element);
     card.setOnClick(onClickCard);
-    containerCards.appendChild(card.render());
+    fragment.appendChild(card.render());
   }
+  containerCards.appendChild(fragment);
 };
 
 

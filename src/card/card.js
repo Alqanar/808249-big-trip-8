@@ -27,6 +27,10 @@ export default class Card {
     return this._data.id;
   }
 
+  get data() {
+    return {...this._data};
+  }
+
   bind() {
     this._element.addEventListener(`click`, this._onClick);
   }
@@ -55,5 +59,9 @@ export default class Card {
 
   setOnClick(onClickInjected) {
     this._onClickInjected = onClickInjected;
+  }
+
+  saveChanges(newData) {
+    this._data = newData;
   }
 }

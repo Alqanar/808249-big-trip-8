@@ -18,6 +18,8 @@ export default class CardEdit {
     this._onSubmit = this._onSubmit.bind(this);
     this._onSelectWay = this._onSelectWay.bind(this);
     this._onChangeTime = this._onChangeTime.bind(this);
+    this._onChangeDestination = this._onChangeDestination.bind(this);
+    this._onChangePrice = this._onChangePrice.bind(this);
 
     this._timeObject = {
       startHour: null,
@@ -43,6 +45,8 @@ export default class CardEdit {
     this._element.querySelector(`.point form`).addEventListener(`submit`, this._onSubmit);
     this._element.querySelector(`.travel-way__select`).addEventListener(`change`, this._onSelectWay);
     this._element.querySelector(`.point__time .point__input`).addEventListener(`change`, this._onChangeTime);
+    this._element.querySelector(`.point__destination-input`).addEventListener(`change`, this._onChangeDestination);
+    this._element.querySelector(`.point__price .point__input`).addEventListener(`change`, this._onChangePrice);
   }
 
   _onSelectWay(event) {
@@ -75,6 +79,17 @@ export default class CardEdit {
     this._fillTime(event.target.value);
     this._changeSeparatorTime(event.target);
     this._validateTime(event.target);
+    this._fillTime(event.target.value);
+    this._data.time = event.target.value;
+    this._data.duration = getDuration(this._timeObject);
+  }
+
+  _onChangeDestination(event) {
+    this._data.destination = event.target.value;
+  }
+
+  _onChangePrice(event) {
+    this._data.price = event.target.value;
   }
 
   render() {
@@ -93,6 +108,8 @@ export default class CardEdit {
     this._element.querySelector(`.point form`).removeEventListener(`submit`, this._onSubmit);
     this._element.querySelector(`.travel-way__select`).removeEventListener(`change`, this._onSelectWay);
     this._element.querySelector(`.point__time .point__input`).removeEventListener(`change`, this._onChangeTime);
+    this._element.querySelector(`.point__destination-input`).addEventListener(`change`, this._onChangeDestination);
+    this._element.querySelector(`.point__price .point__input`).addEventListener(`change`, this._onChangePrice);
   }
 
   unrender() {
@@ -101,25 +118,13 @@ export default class CardEdit {
   }
 
   _gatherData() {
-    const stringTime = this.element.querySelector(`.point__time .point__input`).value;
-    this._fillTime(stringTime);
-    return {
-      id: this._data.id,
-      type: this._element.querySelector(`.travel-way__select-input:checked`).value,
-      destination: this._element.querySelector(`.point__destination-input`).value,
-      time: stringTime,
-      duration: getDuration(this._timeObject),
-      price: this._element.querySelector(`.point__price .point__input`).value,
-      specials: this._data.specials,
-      text: this._data.text,
-      src: this._data.src
-    };
+    return this._data;
   }
 
   _onSubmit(event) {
     event.preventDefault();
     if (this._submitHandler) {
-      this._submitHandler(this, this._gatherData());
+      this._submitHandler(this._gatherData());
     }
   }
 
