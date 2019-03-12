@@ -32,9 +32,9 @@ export default class CardEdit extends ComponentCard {
     return getTemplate(this._data);
   }
 
-  get container() {
-    return this._element.parentNode;
-  }
+  // get container() {
+  //   return this._element.parentNode;
+  // }
 
   bind() {
     this._element.querySelector(`.point form`).addEventListener(`submit`, this._onSubmit);

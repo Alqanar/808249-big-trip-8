@@ -21,6 +21,14 @@ export default class ComponentCard {
     return this._element;
   }
 
+  get container() {
+    return this._element.parentNode;
+  }
+
+  replace(instance) {
+    this.container.replaceChild(instance.element, this.element);
+  }
+
   bind() {}
 
   unbind() {}

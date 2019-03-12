@@ -22,11 +22,11 @@ export const renderFilters = (filterElements) => {
 const onClickCard = (card) => {
   const cardEdit = new CardEdit(card.data);
   cardEdit.render();
-  containerCards.replaceChild(cardEdit.element, card.element);
+  card.replace(cardEdit);
   cardEdit.setOnSubmit((dataCard) => {
     card.saveChanges(dataCard);
     card.render();
-    containerCards.replaceChild(card.element, cardEdit.element);
+    cardEdit.replace(card);
     cardEdit.unrender();
   });
   card.unrender();
