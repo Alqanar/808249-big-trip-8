@@ -1,5 +1,5 @@
+import ComponentCard from './component-card.js';
 import {
-  createElement,
   parseTimeToString,
   getDuration,
   validateTime
@@ -9,11 +9,10 @@ import {
 } from './createCardEditTemplate.js';
 
 
-export default class CardEdit {
+export default class CardEdit extends ComponentCard {
   constructor(data) {
-    this._data = data;
+    super(data);
 
-    this._element = null;
     this._submitHandler = null;
     this._onSubmit = this._onSubmit.bind(this);
     this._onSelectWay = this._onSelectWay.bind(this);
@@ -31,10 +30,6 @@ export default class CardEdit {
 
   get template() {
     return getTemplate(this._data);
-  }
-
-  get element() {
-    return this._element;
   }
 
   get container() {
@@ -92,12 +87,6 @@ export default class CardEdit {
     this._data.price = event.target.value;
   }
 
-  render() {
-    this._element = createElement(this.template);
-    this.bind();
-    return this._element;
-  }
-
   reRender() {
     const oldElement = this._element;
     this.unbind();
@@ -110,11 +99,6 @@ export default class CardEdit {
     this._element.querySelector(`.point__time .point__input`).removeEventListener(`change`, this._onChangeTime);
     this._element.querySelector(`.point__destination-input`).addEventListener(`change`, this._onChangeDestination);
     this._element.querySelector(`.point__price .point__input`).addEventListener(`change`, this._onChangePrice);
-  }
-
-  unrender() {
-    this.unbind();
-    this._element = null;
   }
 
   _gatherData() {
