@@ -1,8 +1,12 @@
+// import flatpickr from 'flatpickr';
+import moment from 'moment';
+
 import ComponentCard from './component-card.js';
 import {
-  parseTimeToString,
+  // parseTimeToString,
   getDuration,
-  validateTime
+  validateTime,
+  changeSeparator
 } from '../utils.js';
 import {
   getTemplate
@@ -32,16 +36,18 @@ export default class CardEdit extends ComponentCard {
     return getTemplate(this._data);
   }
 
-  // get container() {
-  //   return this._element.parentNode;
-  // }
-
   bind() {
+    this._timeInput = this._element.querySelector(`.point__time .point__input`);
     this._element.querySelector(`.point form`).addEventListener(`submit`, this._onSubmit);
     this._element.querySelector(`.travel-way__select`).addEventListener(`change`, this._onSelectWay);
-    this._element.querySelector(`.point__time .point__input`).addEventListener(`change`, this._onChangeTime);
+    this._timeInput.addEventListener(`change`, this._onChangeTime);
     this._element.querySelector(`.point__destination-input`).addEventListener(`change`, this._onChangeDestination);
     this._element.querySelector(`.point__price .point__input`).addEventListener(`change`, this._onChangePrice);
+
+    // flatpickr(
+    //     this._timeInput,
+    //     {enableTime: true, noCalendar: true, dateFormat: `H:i`, time_24hr: true}
+    // );
   }
 
   _onSelectWay(event) {
@@ -56,27 +62,40 @@ export default class CardEdit extends ComponentCard {
     this._timeObject.endMinutes = parseInt(string.slice(11, 13), 10);
   }
 
-  _changeSeparatorTime(target) { /* TO DO */ /* If delete minutes in the start time, then hour become equal NaN */
-    if (typeof (this._timeObject.startMinutes) !== `number` || isNaN(this._timeObject.startMinutes)) {
-      this._timeObject.startMinutes = 0;
-    }
-    if (typeof (this._timeObject.endMinutes) !== `number` || isNaN(this._timeObject.endMinutes)) {
-      this._timeObject.endMinutes = 0;
-    }
-    target.value = parseTimeToString(this._timeObject);
+  _changeSeparatorTime(target) {
+    let timePassed = target.value;
+    let newTimeString = ``;
+    newTimeString = changeSeparator(timePassed, 2, timePassed[2]);
+    timePassed = newTimeString;
+    newTimeString = changeSeparator(timePassed, 10, timePassed[10]);
+
+    target.value = newTimeString;
   }
 
   _validateTime(target) {
     target.setCustomValidity(validateTime(target.value, this._timeObject));
   }
 
+  _getNewTime(string) {
+    const dateStart = moment(`2019-03-18`);
+    const dateEnd = moment(`2019-03-18`);
+    dateStart.set(`hour`, parseInt(string.slice(0, 2), 10));
+    dateStart.set(`minute`, parseInt(string.slice(3, 5), 10));
+    dateEnd.set(`hour`, parseInt(string.slice(8, 10), 10));
+    dateEnd.set(`minute`, parseInt(string.slice(11, 13), 10));
+    return {
+      dateStart,
+      dateEnd
+    };
+  }
+
   _onChangeTime(event) {
-    this._fillTime(event.target.value);
     this._changeSeparatorTime(event.target);
+    this._fillTime(event.target.value);
     this._validateTime(event.target);
     this._fillTime(event.target.value);
-    this._data.time = event.target.value;
-    this._data.duration = getDuration(this._timeObject);
+    this._data.time = this._getNewTime(event.target.value);
+    this._data.duration = getDuration(this._getNewTime(event.target.value));
   }
 
   _onChangeDestination(event) {

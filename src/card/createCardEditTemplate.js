@@ -74,7 +74,7 @@ const renderDestination = (destinations, title, destination) =>
 const renderTime = (time) =>
   `<label class="point__time">
     choose time
-    <input class="point__input" type="text" value="${time}" name="time" placeholder="00:00 — 00:00">
+    <input class="point__input" type="text" value="${time.dateStart.format(`HH:mm`)} — ${time.dateEnd.format(`HH:mm`)}" name="time" placeholder="00:00 — 00:00">
   </label>`;
 
 const renderPrice = (price) =>

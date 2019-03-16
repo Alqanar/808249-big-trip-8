@@ -1,3 +1,5 @@
+import moment from 'moment';
+
 const MAX_HOURS = `24`;
 const MAX_HOURS_START = `23`;
 const MIN_HOURS = `00`;
@@ -26,14 +28,44 @@ const addZero = (number) =>
 export const parseTimeToString = ({startHour, startMinutes, endHour, endMinutes}) =>
   `${addZero(startHour)}:${addZero(startMinutes)} — ${addZero(endHour)}:${addZero(endMinutes)}`;
 
-export const getDuration = ({startHour, startMinutes, endHour, endMinutes}) => {
-  let hourDuration = endHour - startHour;
-  let minutesDuration = endMinutes - startMinutes;
-  if (minutesDuration < 0) {
-    hourDuration = hourDuration - 1;
-    minutesDuration = 60 + minutesDuration;
+export const getDuration = ({dateStart, dateEnd}) => {
+  const duration = moment.duration(dateEnd.diff(dateStart));
+  const hours = duration.hours();
+  const minutes = duration.minutes();
+  return {
+    hours,
+    minutes
+  };
+};
+
+export const changeSeparator = (string, numberStringSymbol, nameStringSymbol) => {
+  let newString = ``;
+  const conditionOne =
+    nameStringSymbol !== `:` &&
+    nameStringSymbol !== undefined &&
+    (isNaN(parseInt(nameStringSymbol, 10)) || typeof (parseInt(nameStringSymbol, 10)) !== `number`);
+  const conditionTwo =
+    nameStringSymbol !== `:` &&
+    !isNaN(parseInt(nameStringSymbol, 10)) &&
+    typeof (parseInt(nameStringSymbol, 10)) === `number`;
+  const conditionThree = nameStringSymbol === undefined;
+  if (conditionOne) {
+    newString = string.replace(nameStringSymbol, `:`);
   }
-  return `${hourDuration}h ${minutesDuration}m`;
+  if (conditionTwo) {
+    const firstPartString = string.slice(0, numberStringSymbol);
+    const restPartString = string.slice(numberStringSymbol);
+    newString = newString.concat(firstPartString, `:`, restPartString);
+  }
+  if (conditionThree) {
+    const firstPartString = string.slice(0);
+    const lostPart = `:`;
+    newString = newString.concat(firstPartString, lostPart);
+  }
+  if (!conditionOne && !conditionTwo && !conditionThree) {
+    newString = string;
+  }
+  return newString;
 };
 
 const generateError = (min, max) =>
