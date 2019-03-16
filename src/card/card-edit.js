@@ -5,6 +5,7 @@ import ComponentCard from './component-card.js';
 import {
   // parseTimeToString,
   getDuration,
+  fixTime,
   validateTime,
   changeSeparator
 } from '../utils.js';
@@ -55,21 +56,62 @@ export default class CardEdit extends ComponentCard {
     this.reRender();
   }
 
-  _fillTime(string) {
-    this._timeObject.startHour = parseInt(string.slice(0, 2), 10);
-    this._timeObject.startMinutes = parseInt(string.slice(3, 5), 10);
-    this._timeObject.endHour = parseInt(string.slice(8, 10), 10);
-    this._timeObject.endMinutes = parseInt(string.slice(11, 13), 10);
+  // _fillTime(string) {
+  //   this._timeObject.startHour = parseInt(string.slice(0, 2), 10);
+  //   this._timeObject.startMinutes = parseInt(string.slice(3, 5), 10);
+  //   this._timeObject.endHour = parseInt(string.slice(8, 10), 10);
+  //   this._timeObject.endMinutes = parseInt(string.slice(11, 13), 10);
+  // }
+
+  // _fixTimeElement(elementArray) {
+  //   if (typeof (parseInt(elementArray, 10)) !== `number` || isNaN(parseInt(elementArray, 10))) {
+  //     return `00`;
+  //   }
+  //   return elementArray;
+  // }
+
+  // _fixTime(array) {
+  //   return array.map(this._fixTimeElement);
+  // }
+
+  _preValidateTime(target) {
+    return /—|-/.test(target.value);
+  }
+
+  _fillTime(target) {
+    const oldValueTime = target.value;
+
+    const time = oldValueTime.split(` — `);
+    let startTime = time[0].split(`:`);
+    let endTime = time[1].split(`:`);
+
+    startTime = fixTime(startTime);
+    endTime = fixTime(endTime);
+
+
+    this._timeObject.startHour = parseInt(startTime[0], 10);
+    this._timeObject.startMinutes = parseInt(startTime[1], 10);
+    this._timeObject.endHour = parseInt(endTime[0], 10);
+    this._timeObject.endMinutes = parseInt(endTime[1], 10);
+
+    target.value = `${startTime[0]}:${startTime[1]} — ${endTime[0]}:${endTime[1]}`;
   }
 
   _changeSeparatorTime(target) {
-    let timePassed = target.value;
-    let newTimeString = ``;
-    newTimeString = changeSeparator(timePassed, 2, timePassed[2]);
-    timePassed = newTimeString;
-    newTimeString = changeSeparator(timePassed, 10, timePassed[10]);
+    let timeString = target.value;
+    const separator = / ?— ?/;
+    const separator2 = / +/g;
 
-    target.value = newTimeString;
+    timeString = timeString.replace(`-`, `—`);
+    timeString = timeString.replace(separator, ` — `);
+    timeString = timeString.replace(separator2, ` `);
+
+    let newTimeString = timeString.split(` — `);
+
+    const startTime = changeSeparator(newTimeString[0]);
+    const endTime = changeSeparator(newTimeString[1]);
+
+    target.value = `${startTime} — ${endTime}`;
   }
 
   _validateTime(target) {
@@ -90,12 +132,16 @@ export default class CardEdit extends ComponentCard {
   }
 
   _onChangeTime(event) {
-    this._changeSeparatorTime(event.target);
-    this._fillTime(event.target.value);
-    this._validateTime(event.target);
-    this._fillTime(event.target.value);
-    this._data.time = this._getNewTime(event.target.value);
-    this._data.duration = getDuration(this._getNewTime(event.target.value));
+    if (this._preValidateTime(event.target)) {
+      this._changeSeparatorTime(event.target);
+      this._fillTime(event.target);
+      this._validateTime(event.target);
+      // this._fillTime(event.target.value);
+      this._data.time = this._getNewTime(event.target.value);
+      this._data.duration = getDuration(this._getNewTime(event.target.value));
+    } else {
+      event.target.setCustomValidity(`Invalid value entered! Enter a value in the format 'HH:MM — HH:MM'`);
+    }
   }
 
   _onChangeDestination(event) {
