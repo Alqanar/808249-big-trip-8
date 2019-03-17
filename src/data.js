@@ -1,7 +1,8 @@
+import moment from 'moment';
+
 import {
   getMixedArray,
   getRandomInteger,
-  parseTimeToString,
   getDuration
 } from './utils.js';
 import {
@@ -23,17 +24,16 @@ const prices = [10, 20, 40, 80];
 
 const NUMBER_CARDS = 7;
 
-const getMinutes = () =>
-  getRandomInteger(0, 59) > 30 ? 30 : 0;
-
 const getTime = () => {
-  const startHour = getRandomInteger(0, 23);
-  const endHour = getRandomInteger(startHour + 1, 24);
+  const dateStart = moment(`2019-03-18`);
+  const dateEnd = moment(`2019-03-18`);
+  dateStart.set(`hour`, getRandomInteger(0, 22));
+  dateStart.set(`minute`, getRandomInteger(0, 59));
+  dateEnd.set(`hour`, getRandomInteger(dateStart.get(`hour`) + 1, 23));
+  dateEnd.set(`minute`, getRandomInteger(0, 59));
   return {
-    startHour,
-    startMinutes: getMinutes(),
-    endHour,
-    endMinutes: getMinutes()
+    dateStart: dateStart.toDate(),
+    dateEnd: dateEnd.toDate()
   };
 };
 
@@ -72,7 +72,7 @@ let getDataCards = () => {
       id: i,
       type: types[getRandomInteger(0, types.length - 1)],
       destination: destinations[getRandomInteger(0, destinations.length - 1)],
-      time: parseTimeToString(time),
+      time,
       duration: getDuration(time),
       price: prices[getRandomInteger(0, prices.length - 1)],
       specials: getMixedArray(Specials).slice(0, getRandomInteger(0, 3))

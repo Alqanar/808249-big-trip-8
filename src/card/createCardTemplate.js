@@ -1,3 +1,5 @@
+import moment from 'moment';
+
 import {
   TYPES_MAP
 } from '../trip-types.js';
@@ -25,8 +27,8 @@ export const getTemplate = (data) =>
     <i class="trip-icon">${TYPES_MAP[data.type].icon}</i>
     <h3 class="trip-point__title">${TYPES_MAP[data.type].title} ${data.destination}</h3>
     <p class="trip-point__schedule">
-      <span class="trip-point__timetable">${data.time}</span>
-      <span class="trip-point__duration">${data.duration}</span>
+      <span class="trip-point__timetable">${moment(data.time.dateStart).format(`HH:mm`)} — ${moment(data.time.dateEnd).format(`HH:mm`)}</span>
+      <span class="trip-point__duration">${data.duration.hours}h ${data.duration.minutes}m</span>
     </p>
     <p class="trip-point__price">&euro;&nbsp;${data.price}</p>
     ${renderOffersTemplate(data.specials)}

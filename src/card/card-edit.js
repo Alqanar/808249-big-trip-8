@@ -1,8 +1,8 @@
+import flatpickr from 'flatpickr';
+
 import ComponentCard from './component-card.js';
 import {
-  parseTimeToString,
-  getDuration,
-  validateTime
+  getDuration
 } from '../utils.js';
 import {
   getTemplate
@@ -16,7 +16,6 @@ export default class CardEdit extends ComponentCard {
     this._submitHandler = null;
     this._onSubmit = this._onSubmit.bind(this);
     this._onSelectWay = this._onSelectWay.bind(this);
-    this._onChangeTime = this._onChangeTime.bind(this);
     this._onChangeDestination = this._onChangeDestination.bind(this);
     this._onChangePrice = this._onChangePrice.bind(this);
 
@@ -32,51 +31,33 @@ export default class CardEdit extends ComponentCard {
     return getTemplate(this._data);
   }
 
-  // get container() {
-  //   return this._element.parentNode;
-  // }
-
   bind() {
+    this._timeInput = this._element.querySelector(`.point__time .point__input`);
+    const time = this._data.time;
     this._element.querySelector(`.point form`).addEventListener(`submit`, this._onSubmit);
     this._element.querySelector(`.travel-way__select`).addEventListener(`change`, this._onSelectWay);
-    this._element.querySelector(`.point__time .point__input`).addEventListener(`change`, this._onChangeTime);
     this._element.querySelector(`.point__destination-input`).addEventListener(`change`, this._onChangeDestination);
     this._element.querySelector(`.point__price .point__input`).addEventListener(`change`, this._onChangePrice);
+
+    flatpickr(
+        this._timeInput,
+        {mode: `range`,
+          dateFormat: `H:i`,
+          defaultDate: [time.dateStart, time.dateEnd],
+          enableTime: true,
+          onClose: (selectedDates) => {
+            this._data.time.dateStart = selectedDates[0];
+            this._data.time.dateEnd = selectedDates[1];
+            this._data.duration = getDuration(this._data.time);
+          },
+          [`time_24hr`]: true
+        }
+    );
   }
 
   _onSelectWay(event) {
     this._data.type = event.target.value;
     this.reRender();
-  }
-
-  _fillTime(string) {
-    this._timeObject.startHour = parseInt(string.slice(0, 2), 10);
-    this._timeObject.startMinutes = parseInt(string.slice(3, 5), 10);
-    this._timeObject.endHour = parseInt(string.slice(8, 10), 10);
-    this._timeObject.endMinutes = parseInt(string.slice(11, 13), 10);
-  }
-
-  _changeSeparatorTime(target) { /* TO DO */ /* If delete minutes in the start time, then hour become equal NaN */
-    if (typeof (this._timeObject.startMinutes) !== `number` || isNaN(this._timeObject.startMinutes)) {
-      this._timeObject.startMinutes = 0;
-    }
-    if (typeof (this._timeObject.endMinutes) !== `number` || isNaN(this._timeObject.endMinutes)) {
-      this._timeObject.endMinutes = 0;
-    }
-    target.value = parseTimeToString(this._timeObject);
-  }
-
-  _validateTime(target) {
-    target.setCustomValidity(validateTime(target.value, this._timeObject));
-  }
-
-  _onChangeTime(event) {
-    this._fillTime(event.target.value);
-    this._changeSeparatorTime(event.target);
-    this._validateTime(event.target);
-    this._fillTime(event.target.value);
-    this._data.time = event.target.value;
-    this._data.duration = getDuration(this._timeObject);
   }
 
   _onChangeDestination(event) {
@@ -96,7 +77,6 @@ export default class CardEdit extends ComponentCard {
   unbind() {
     this._element.querySelector(`.point form`).removeEventListener(`submit`, this._onSubmit);
     this._element.querySelector(`.travel-way__select`).removeEventListener(`change`, this._onSelectWay);
-    this._element.querySelector(`.point__time .point__input`).removeEventListener(`change`, this._onChangeTime);
     this._element.querySelector(`.point__destination-input`).addEventListener(`change`, this._onChangeDestination);
     this._element.querySelector(`.point__price .point__input`).addEventListener(`change`, this._onChangePrice);
   }
