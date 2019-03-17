@@ -3,7 +3,6 @@ import moment from 'moment';
 import {
   getMixedArray,
   getRandomInteger,
-  // parseTimeToString,
   getDuration
 } from './utils.js';
 import {
@@ -25,9 +24,6 @@ const prices = [10, 20, 40, 80];
 
 const NUMBER_CARDS = 7;
 
-// const getMinutes = () =>
-//   getRandomInteger(0, 59) > 30 ? 30 : 0;
-
 const getTime = () => {
   const dateStart = moment(`2019-03-18`);
   const dateEnd = moment(`2019-03-18`);
@@ -35,8 +31,6 @@ const getTime = () => {
   dateStart.set(`minute`, getRandomInteger(0, 59));
   dateEnd.set(`hour`, getRandomInteger(dateStart.get(`hour`) + 1, 23));
   dateEnd.set(`minute`, getRandomInteger(0, 59));
-  // const startHour = getRandomInteger(0, 23);
-  // const endHour = getRandomInteger(startHour + 1, 24);
   return {
     dateStart,
     dateEnd
