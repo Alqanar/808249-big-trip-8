@@ -17,6 +17,8 @@ export const getMixedArray = (list) =>
   list.slice(0).sort(getRandomComparator);
 
 export const getDuration = ({dateStart, dateEnd}) => {
+  dateStart = moment(dateStart);
+  dateEnd = moment(dateEnd);
   const duration = moment.duration(dateEnd.diff(dateStart));
   const hours = duration.hours();
   const minutes = duration.minutes();

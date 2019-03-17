@@ -32,8 +32,8 @@ const getTime = () => {
   dateEnd.set(`hour`, getRandomInteger(dateStart.get(`hour`) + 1, 23));
   dateEnd.set(`minute`, getRandomInteger(0, 59));
   return {
-    dateStart,
-    dateEnd
+    dateStart: dateStart.toDate(),
+    dateEnd: dateEnd.toDate()
   };
 };
 

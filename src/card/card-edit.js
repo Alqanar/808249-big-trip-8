@@ -1,4 +1,3 @@
-import moment from 'moment';
 import flatpickr from 'flatpickr';
 
 import ComponentCard from './component-card.js';
@@ -44,11 +43,11 @@ export default class CardEdit extends ComponentCard {
         this._timeInput,
         {mode: `range`,
           dateFormat: `H:i`,
-          defaultDate: [time.dateStart.toDate(), time.dateEnd.toDate()],
+          defaultDate: [time.dateStart, time.dateEnd],
           enableTime: true,
           onClose: (selectedDates) => {
-            this._data.time.dateStart = moment(selectedDates[0]);
-            this._data.time.dateEnd = moment(selectedDates[1]);
+            this._data.time.dateStart = selectedDates[0];
+            this._data.time.dateEnd = selectedDates[1];
             this._data.duration = getDuration(this._data.time);
           },
           [`time_24hr`]: true
