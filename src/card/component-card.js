@@ -25,6 +25,10 @@ export default class ComponentCard {
     return this._element.parentNode;
   }
 
+  get id() {
+    return this._data.id;
+  }
+
   replace(instance) {
     this.container.replaceChild(instance.element, this.element);
   }

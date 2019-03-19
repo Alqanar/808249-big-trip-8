@@ -14,7 +14,9 @@ export default class CardEdit extends ComponentCard {
     super(data);
 
     this._submitHandler = null;
+    this._deleteHandler = null;
     this._onSubmit = this._onSubmit.bind(this);
+    this._onDelete = this._onDelete.bind(this);
     this._onSelectWay = this._onSelectWay.bind(this);
     this._onChangeDestination = this._onChangeDestination.bind(this);
     this._onChangePrice = this._onChangePrice.bind(this);
@@ -38,6 +40,7 @@ export default class CardEdit extends ComponentCard {
     this._element.querySelector(`.travel-way__select`).addEventListener(`change`, this._onSelectWay);
     this._element.querySelector(`.point__destination-input`).addEventListener(`change`, this._onChangeDestination);
     this._element.querySelector(`.point__price .point__input`).addEventListener(`change`, this._onChangePrice);
+    this._element.querySelector(`.point__buttons [type="reset"]`).addEventListener(`click`, this._onDelete);
 
     flatpickr(
         this._timeInput,
@@ -77,8 +80,9 @@ export default class CardEdit extends ComponentCard {
   unbind() {
     this._element.querySelector(`.point form`).removeEventListener(`submit`, this._onSubmit);
     this._element.querySelector(`.travel-way__select`).removeEventListener(`change`, this._onSelectWay);
-    this._element.querySelector(`.point__destination-input`).addEventListener(`change`, this._onChangeDestination);
-    this._element.querySelector(`.point__price .point__input`).addEventListener(`change`, this._onChangePrice);
+    this._element.querySelector(`.point__destination-input`).removeEventListener(`change`, this._onChangeDestination);
+    this._element.querySelector(`.point__price .point__input`).removeEventListener(`change`, this._onChangePrice);
+    this._element.querySelector(`.point__buttons [type="reset"]`).removeEventListener(`click`, this._onDelete);
   }
 
   _gatherData() {
@@ -94,5 +98,21 @@ export default class CardEdit extends ComponentCard {
 
   setOnSubmit(submitHandler) {
     this._submitHandler = submitHandler;
+  }
+
+  _onDelete(event) {
+    event.preventDefault();
+    if (this._deleteHandler) {
+      this._deleteHandler(this);
+    }
+  }
+
+  setOnDelete(deleteHandler) {
+    this._deleteHandler = deleteHandler;
+  }
+
+  destroy() {
+    this.container.removeChild(this._element);
+    this.unrender();
   }
 }

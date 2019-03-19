@@ -6,10 +6,13 @@ import {
 } from './data.js';
 import {
   renderFilters,
-  renderBoardCards
+  renderBoardCards,
+  setData
 } from './app.js';
 
 
 renderFilters(NamesFilterDict);
 
-renderBoardCards(preparedData);
+setData(preparedData);
+
+renderBoardCards();
