@@ -1,23 +1,45 @@
 import {
-  createFiltersElements
-} from './filters/createFiltersElements.js';
+  getFilterTemplate
+} from './filters/createFilterTemplate.js';
 import Card from './card/card.js';
 import CardEdit from './card/card-edit.js';
-// import {
-//   preparedData
-// } from './data.js';
 import {
   getRandomInteger
 } from './utils.js';
+import {
+  createElement
+} from './utils.js';
 
-const containerElementFilter = document.querySelector(`.trip-filter`);
+const containerElementFilter = document.querySelector(`.trip-controls__menus.view-switch`);
 const containerCards = document.querySelector(`.trip-day__items`);
 let savedData = [];
 
 
-export const renderFilters = (filterElements) => {
-  containerElementFilter.innerHTML = ``;
-  return containerElementFilter.appendChild(createFiltersElements(filterElements));
+export const setData = (preparedData) => {
+  savedData = preparedData;
+};
+
+
+export const renderFilters = (filterData) => {
+  const formFilter = containerElementFilter.querySelector(`.trip-filter`);
+  if (formFilter) {
+    containerElementFilter.removeChild(formFilter);
+  }
+  containerElementFilter.appendChild(createElement(getFilterTemplate(filterData)));
+
+  containerElementFilter.querySelector(`.trip-filter`).addEventListener(
+      `click`,
+      () => renderBoardCards(savedData.slice(0, getRandomInteger(1, 7))
+      )
+  );
+};
+
+const deleteTask = (cardEditInstance) => {
+  const soughtId = savedData.findIndex((element) =>
+    element.id === cardEditInstance.id
+  );
+  savedData.splice(soughtId, 1);
+  cardEditInstance.destroy();
 };
 
 const onClickCard = (card) => {
@@ -34,10 +56,10 @@ const onClickCard = (card) => {
   card.unrender();
 };
 
-export const renderBoardCards = () => {
+export const renderBoardCards = (data = savedData) => {
   containerCards.innerHTML = ``;
   const fragment = document.createDocumentFragment();
-  for (let element of savedData) {
+  for (let element of data) {
     let card = new Card(element);
     card.setOnClick(onClickCard);
     fragment.appendChild(card.render());
@@ -45,21 +67,9 @@ export const renderBoardCards = () => {
   containerCards.appendChild(fragment);
 };
 
-export const setData = (preparedData) => {
-  savedData = preparedData;
-};
 
-const deleteTask = (cardEditInstance) => {
-  const soughtId = savedData.findIndex((element) =>
-    element.id === cardEditInstance.id
-  );
-  savedData.splice(soughtId, 1);
-  cardEditInstance.destroy();
-};
-
-
-containerElementFilter.addEventListener(
-    `click`,
-    () => renderBoardCards(savedData.slice(0, getRandomInteger(1, 7))
-    )
-);
+// containerElementFilter.querySelector(`.trip-filter`).addEventListener(
+//     `click`,
+//     () => renderBoardCards(savedData.slice(0, getRandomInteger(1, 7))
+//     )
+// );
