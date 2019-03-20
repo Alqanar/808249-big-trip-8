@@ -1,6 +1,6 @@
 import flatpickr from 'flatpickr';
 
-import ComponentCard from './component-card.js';
+import BaseComponent from '../base-component.js';
 import {
   getDuration
 } from '../utils.js';
@@ -9,7 +9,7 @@ import {
 } from './createCardEditTemplate.js';
 
 
-export default class CardEdit extends ComponentCard {
+export default class CardEdit extends BaseComponent {
   constructor(data) {
     super(data);
 
@@ -20,13 +20,6 @@ export default class CardEdit extends ComponentCard {
     this._onSelectWay = this._onSelectWay.bind(this);
     this._onChangeDestination = this._onChangeDestination.bind(this);
     this._onChangePrice = this._onChangePrice.bind(this);
-
-    this._timeObject = {
-      startHour: null,
-      startMinutes: null,
-      endHour: null,
-      endMinutes: null
-    };
   }
 
   get template() {

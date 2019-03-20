@@ -1,14 +1,9 @@
-import {
-  getFilterTemplate
-} from './filters/createFilterTemplate.js';
 import Card from './card/card.js';
 import CardEdit from './card/card-edit.js';
-import {
-  getRandomInteger
-} from './utils.js';
-import {
-  createElement
-} from './utils.js';
+import Filters from './filters/filters.js';
+// import {
+//   getRandomInteger
+// } from './utils.js';
 
 const containerElementFilter = document.querySelector(`.trip-controls__menus.view-switch`);
 const containerCards = document.querySelector(`.trip-day__items`);
@@ -19,19 +14,34 @@ export const setData = (preparedData) => {
   savedData = preparedData;
 };
 
+const onChangeFilter = (filtersId) => {
+  let dataToRender = [];
+  const dateNow = Date.now();
+  switch (filtersId) {
+    case `filter-everything`:
+      dataToRender = savedData;
+      break;
+
+    case `filter-future`:
+      dataToRender = savedData.filter(({time: {dateStart}}) => dateStart.getTime() > dateNow);
+      break;
+
+    case `filter-past`:
+      dataToRender = savedData.filter(({time: {dateEnd}}) => dateEnd.getTime() < dateNow);
+      break;
+  }
+  renderBoardCards(dataToRender);
+};
 
 export const renderFilters = (filterData) => {
+  const filter = new Filters(filterData);
   const formFilter = containerElementFilter.querySelector(`.trip-filter`);
   if (formFilter) {
     containerElementFilter.removeChild(formFilter);
   }
-  containerElementFilter.appendChild(createElement(getFilterTemplate(filterData)));
+  containerElementFilter.appendChild(filter.render());
 
-  containerElementFilter.querySelector(`.trip-filter`).addEventListener(
-      `click`,
-      () => renderBoardCards(savedData.slice(0, getRandomInteger(1, 7))
-      )
-  );
+  filter.setOnChangeFilter(onChangeFilter);
 };
 
 const deleteTask = (cardEditInstance) => {

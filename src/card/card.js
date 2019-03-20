@@ -1,10 +1,10 @@
-import ComponentCard from './component-card.js';
+import BaseComponent from '../base-component.js';
 import {
   getTemplate
 } from './createCardTemplate.js';
 
 
-export default class Card extends ComponentCard {
+export default class Card extends BaseComponent {
   constructor(data) {
     super(data);
 
@@ -14,10 +14,6 @@ export default class Card extends ComponentCard {
 
   get template() {
     return getTemplate(this._data);
-  }
-
-  get id() {
-    return this._data.id;
   }
 
   get data() {

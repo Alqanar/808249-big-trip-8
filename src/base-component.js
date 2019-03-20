@@ -1,10 +1,10 @@
 import {
   createElement
-} from '../utils.js';
+} from './utils.js';
 
-export default class ComponentCard {
+export default class BaseComponent {
   constructor(data) {
-    if (new.target === ComponentCard) {
+    if (new.target === BaseComponent) {
       throw new Error(`Can't instantiate Component, only concrete one.`);
     }
 
