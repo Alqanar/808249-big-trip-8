@@ -1,12 +1,16 @@
 import Card from './card/card.js';
 import CardEdit from './card/card-edit.js';
 import Filters from './filters/filters.js';
+import Statistic from './statistic/statistic.js';
 // import {
 //   getRandomInteger
 // } from './utils.js';
 
+const main = document.querySelector(`.main`);
 const containerElementFilter = document.querySelector(`.trip-controls__menus.view-switch`);
 const containerCards = document.querySelector(`.trip-day__items`);
+const linkTable = containerElementFilter.querySelector(`.view-switch__item:first-of-type`);
+const linkStatistic = containerElementFilter.querySelector(`.view-switch__item:last-of-type`);
 let savedData = [];
 
 
@@ -77,9 +81,43 @@ export const renderBoardCards = (data = savedData) => {
   containerCards.appendChild(fragment);
 };
 
+const renderStatistic = (dataForStats) => {
+  const statistic = new Statistic(dataForStats);
+  const elementStatistic = document.querySelector(`.statistic`);
+  if (elementStatistic) {
+    document.body.removeChild(elementStatistic);
+  }
+  document.body.appendChild(statistic.render());
+  statistic.renderCharts();
+};
 
-// containerElementFilter.querySelector(`.trip-filter`).addEventListener(
-//     `click`,
-//     () => renderBoardCards(savedData.slice(0, getRandomInteger(1, 7))
-//     )
-// );
+linkTable.addEventListener(`click`, () => {
+  if (!document.querySelector(`.statistic`).classList.contains(`visually-hidden`)) {
+    document.querySelector(`.statistic`).classList.add(`visually-hidden`);
+  }
+  if (main.classList.contains(`visually-hidden`)) {
+    main.classList.remove(`visually-hidden`);
+  }
+  if (linkStatistic.classList.contains(`view-switch__item--active`)) {
+    linkStatistic.classList.remove(`view-switch__item--active`);
+  }
+  if (!linkTable.classList.contains(`view-switch__item--active`)) {
+    linkTable.classList.add(`view-switch__item--active`);
+  }
+});
+
+linkStatistic.addEventListener(`click`, () => {
+  if (!main.classList.contains(`visually-hidden`)) {
+    main.classList.add(`visually-hidden`);
+  }
+  renderStatistic(savedData);
+  if (linkTable.classList.contains(`view-switch__item--active`)) {
+    linkTable.classList.remove(`view-switch__item--active`);
+  }
+  if (!linkStatistic.classList.contains(`view-switch__item--active`)) {
+    linkStatistic.classList.add(`view-switch__item--active`);
+  }
+});
+
+/* Повесить обработчик события click на ссылки (`Table` и `Stats`), которые будут отвечать за изменение класса у ссылки и добавление/удаление класса visually-hedden у блока статистики/main */
+
