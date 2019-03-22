@@ -61,7 +61,7 @@ export default class CardEdit extends BaseComponent {
   }
 
   _onChangePrice(event) {
-    this._data.price = event.target.value;
+    this._data.price = parseInt(event.target.value, 10);
   }
 
   reRender() {
@@ -78,14 +78,10 @@ export default class CardEdit extends BaseComponent {
     this._element.querySelector(`.point__buttons [type="reset"]`).removeEventListener(`click`, this._onDelete);
   }
 
-  _gatherData() {
-    return this._data;
-  }
-
   _onSubmit(event) {
     event.preventDefault();
     if (this._submitHandler) {
-      this._submitHandler(this._gatherData());
+      this._submitHandler(this._data);
     }
   }
 

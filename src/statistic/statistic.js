@@ -4,7 +4,8 @@ import ChartDataLabels from 'chartjs-plugin-datalabels';
 
 import BaseComponent from '../base-component.js';
 import {
-  getStatisticTemplate
+  getStatisticTemplate,
+  getStatisticInnerTemplate
 } from './createStatisticTemplate.js';
 import {
   TYPES_MAP
@@ -13,7 +14,7 @@ import {
 const BAR_HEIGHT = 55;
 
 const getLabel = (obj, elementData) => {
-  const label = TYPES_MAP[elementData.type].icon + elementData.type;
+  const label = TYPES_MAP[elementData.type].icon + ` ` + elementData.type;
   if (!obj[label]) {
     obj[label] = 0;
   }
@@ -27,6 +28,10 @@ export default class Statistic extends BaseComponent {
 
   get template() {
     return getStatisticTemplate();
+  }
+
+  changeStealthSwitch() {
+    this._element.classList.toggle(`visually-hidden`);
   }
 
   _getMoneySummary() {
@@ -119,7 +124,12 @@ export default class Statistic extends BaseComponent {
     });
   }
 
-  renderCharts() {
+  updateView() {
+    this._element.innerHTML = getStatisticInnerTemplate();
+  }
+
+  renderCharts(dataForGraph) {
+    this._data = dataForGraph;
     this._drawGraph(this.element.querySelector(`.statistic__money`), this._getMoneySummary(), `MONEY`, (val) => `€ ${val}`);
     this._drawGraph(this.element.querySelector(`.statistic__transport`), this._getUseOfTransport(), `TRANSPORT`, (val) => `${val}x`);
   }

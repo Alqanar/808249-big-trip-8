@@ -1,3 +1,5 @@
+import cloneDeep from 'lodash/cloneDeep';
+
 import BaseComponent from '../base-component.js';
 import {
   getTemplate
@@ -17,7 +19,7 @@ export default class Card extends BaseComponent {
   }
 
   get data() {
-    return {...this._data};
+    return cloneDeep(this._data);
   }
 
   bind() {

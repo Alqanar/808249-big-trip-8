@@ -2,16 +2,17 @@ import Card from './card/card.js';
 import CardEdit from './card/card-edit.js';
 import Filters from './filters/filters.js';
 import Statistic from './statistic/statistic.js';
-// import {
-//   getRandomInteger
-// } from './utils.js';
+import {
+  NamesFilterDict
+} from './filters/namesFilterDict.js';
 
 const main = document.querySelector(`.main`);
 const containerElementFilter = document.querySelector(`.trip-controls__menus.view-switch`);
 const containerCards = document.querySelector(`.trip-day__items`);
-const linkTable = containerElementFilter.querySelector(`.view-switch__item:first-of-type`);
-const linkStatistic = containerElementFilter.querySelector(`.view-switch__item:last-of-type`);
+let activeLink = document.querySelector(`.view-switch__item--active`);
+
 let savedData = [];
+const statistic = new Statistic(savedData);
 
 
 export const setData = (preparedData) => {
@@ -20,7 +21,7 @@ export const setData = (preparedData) => {
 
 const onChangeFilter = (filtersId) => {
   let dataToRender = [];
-  const dateNow = Date.now();
+  const dateNow = new Date().getTime();
   switch (filtersId) {
     case `filter-everything`:
       dataToRender = savedData;
@@ -37,7 +38,7 @@ const onChangeFilter = (filtersId) => {
   renderBoardCards(dataToRender);
 };
 
-export const renderFilters = (filterData) => {
+const renderFilters = (filterData) => {
   const filter = new Filters(filterData);
   const formFilter = containerElementFilter.querySelector(`.trip-filter`);
   if (formFilter) {
@@ -48,6 +49,8 @@ export const renderFilters = (filterData) => {
   filter.setOnChangeFilter(onChangeFilter);
 };
 
+renderFilters(NamesFilterDict);
+
 const deleteTask = (cardEditInstance) => {
   const soughtId = savedData.findIndex((element) =>
     element.id === cardEditInstance.id
@@ -56,12 +59,22 @@ const deleteTask = (cardEditInstance) => {
   cardEditInstance.destroy();
 };
 
+const sync = (newDataObj) => {
+  savedData = savedData.map((element) => {
+    if (element.id === newDataObj.id) {
+      return newDataObj;
+    }
+    return element;
+  });
+};
+
 const onClickCard = (card) => {
   const cardEdit = new CardEdit(card.data);
   cardEdit.render();
   card.replace(cardEdit);
   cardEdit.setOnSubmit((dataCard) => {
     card.saveChanges(dataCard);
+    sync(dataCard);
     card.render();
     cardEdit.replace(card);
     cardEdit.unrender();
@@ -81,43 +94,25 @@ export const renderBoardCards = (data = savedData) => {
   containerCards.appendChild(fragment);
 };
 
-const renderStatistic = (dataForStats) => {
-  const statistic = new Statistic(dataForStats);
+const renderStatistic = () => {
   const elementStatistic = document.querySelector(`.statistic`);
   if (elementStatistic) {
-    document.body.removeChild(elementStatistic);
+    statistic.updateView();
+  } else {
+    document.body.appendChild(statistic.render());
   }
-  document.body.appendChild(statistic.render());
-  statistic.renderCharts();
+  statistic.renderCharts(savedData);
 };
 
-linkTable.addEventListener(`click`, () => {
-  if (!document.querySelector(`.statistic`).classList.contains(`visually-hidden`)) {
-    document.querySelector(`.statistic`).classList.add(`visually-hidden`);
-  }
-  if (main.classList.contains(`visually-hidden`)) {
-    main.classList.remove(`visually-hidden`);
-  }
-  if (linkStatistic.classList.contains(`view-switch__item--active`)) {
-    linkStatistic.classList.remove(`view-switch__item--active`);
-  }
-  if (!linkTable.classList.contains(`view-switch__item--active`)) {
-    linkTable.classList.add(`view-switch__item--active`);
+containerElementFilter.addEventListener(`click`, (e) => {
+  const {target} = e;
+  if (target.closest(`.view-switch__item`) && target !== activeLink) {
+    e.preventDefault();
+    activeLink.classList.remove(`view-switch__item--active`);
+    target.classList.add(`view-switch__item--active`);
+    activeLink = target;
+    main.classList.toggle(`visually-hidden`);
+    renderStatistic();
+    statistic.changeStealthSwitch();
   }
 });
-
-linkStatistic.addEventListener(`click`, () => {
-  if (!main.classList.contains(`visually-hidden`)) {
-    main.classList.add(`visually-hidden`);
-  }
-  renderStatistic(savedData);
-  if (linkTable.classList.contains(`view-switch__item--active`)) {
-    linkTable.classList.remove(`view-switch__item--active`);
-  }
-  if (!linkStatistic.classList.contains(`view-switch__item--active`)) {
-    linkStatistic.classList.add(`view-switch__item--active`);
-  }
-});
-
-/* Повесить обработчик события click на ссылки (`Table` и `Stats`), которые будут отвечать за изменение класса у ссылки и добавление/удаление класса visually-hedden у блока статистики/main */
-
