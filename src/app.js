@@ -1,22 +1,71 @@
-import {
-  createFiltersElements
-} from './filters/createFiltersElements.js';
 import Card from './card/card.js';
 import CardEdit from './card/card-edit.js';
+import Filters from './filters/filters.js';
+import Statistic from './statistic/statistic.js';
 import {
-  preparedData
-} from './data.js';
-import {
-  getRandomInteger
-} from './utils.js';
+  NamesFilterDict
+} from './filters/namesFilterDict.js';
 
-const containerElementFilter = document.querySelector(`.trip-filter`);
+const main = document.querySelector(`.main`);
+const containerElementFilter = document.querySelector(`.trip-controls__menus.view-switch`);
 const containerCards = document.querySelector(`.trip-day__items`);
+let activeLink = document.querySelector(`.view-switch__item--active`);
+
+let savedData = [];
+const statistic = new Statistic(savedData);
 
 
-export const renderFilters = (filterElements) => {
-  containerElementFilter.innerHTML = ``;
-  return containerElementFilter.appendChild(createFiltersElements(filterElements));
+export const setData = (preparedData) => {
+  savedData = preparedData;
+};
+
+const onChangeFilter = (filtersId) => {
+  let dataToRender = [];
+  const dateNow = new Date().getTime();
+  switch (filtersId) {
+    case `filter-everything`:
+      dataToRender = savedData;
+      break;
+
+    case `filter-future`:
+      dataToRender = savedData.filter(({time: {dateStart}}) => dateStart.getTime() > dateNow);
+      break;
+
+    case `filter-past`:
+      dataToRender = savedData.filter(({time: {dateEnd}}) => dateEnd.getTime() < dateNow);
+      break;
+  }
+  renderBoardCards(dataToRender);
+};
+
+const renderFilters = (filterData) => {
+  const filter = new Filters(filterData);
+  const formFilter = containerElementFilter.querySelector(`.trip-filter`);
+  if (formFilter) {
+    containerElementFilter.removeChild(formFilter);
+  }
+  containerElementFilter.appendChild(filter.render());
+
+  filter.setOnChangeFilter(onChangeFilter);
+};
+
+renderFilters(NamesFilterDict);
+
+const deleteTask = (cardEditInstance) => {
+  const soughtId = savedData.findIndex((element) =>
+    element.id === cardEditInstance.id
+  );
+  savedData.splice(soughtId, 1);
+  cardEditInstance.destroy();
+};
+
+const sync = (newDataObj) => {
+  savedData = savedData.map((element) => {
+    if (element.id === newDataObj.id) {
+      return newDataObj;
+    }
+    return element;
+  });
 };
 
 const onClickCard = (card) => {
@@ -25,14 +74,16 @@ const onClickCard = (card) => {
   card.replace(cardEdit);
   cardEdit.setOnSubmit((dataCard) => {
     card.saveChanges(dataCard);
+    sync(dataCard);
     card.render();
     cardEdit.replace(card);
     cardEdit.unrender();
   });
+  cardEdit.setOnDelete(deleteTask);
   card.unrender();
 };
 
-export const renderBoardCards = (data) => {
+export const renderBoardCards = (data = savedData) => {
   containerCards.innerHTML = ``;
   const fragment = document.createDocumentFragment();
   for (let element of data) {
@@ -43,9 +94,25 @@ export const renderBoardCards = (data) => {
   containerCards.appendChild(fragment);
 };
 
+const renderStatistic = () => {
+  const elementStatistic = document.querySelector(`.statistic`);
+  if (elementStatistic) {
+    statistic.updateView();
+  } else {
+    document.body.appendChild(statistic.render());
+  }
+  statistic.renderCharts(savedData);
+};
 
-containerElementFilter.addEventListener(
-    `click`,
-    () => renderBoardCards(preparedData.slice(0, getRandomInteger(1, 7))
-    )
-);
+containerElementFilter.addEventListener(`click`, (e) => {
+  const {target} = e;
+  if (target.closest(`.view-switch__item`) && target !== activeLink) {
+    e.preventDefault();
+    activeLink.classList.remove(`view-switch__item--active`);
+    target.classList.add(`view-switch__item--active`);
+    activeLink = target;
+    main.classList.toggle(`visually-hidden`);
+    renderStatistic();
+    statistic.changeStealthSwitch();
+  }
+});

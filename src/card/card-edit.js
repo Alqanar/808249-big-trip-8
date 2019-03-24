@@ -1,6 +1,6 @@
 import flatpickr from 'flatpickr';
 
-import ComponentCard from './component-card.js';
+import BaseComponent from '../base-component.js';
 import {
   getDuration
 } from '../utils.js';
@@ -9,22 +9,17 @@ import {
 } from './createCardEditTemplate.js';
 
 
-export default class CardEdit extends ComponentCard {
+export default class CardEdit extends BaseComponent {
   constructor(data) {
     super(data);
 
     this._submitHandler = null;
+    this._deleteHandler = null;
     this._onSubmit = this._onSubmit.bind(this);
+    this._onDelete = this._onDelete.bind(this);
     this._onSelectWay = this._onSelectWay.bind(this);
     this._onChangeDestination = this._onChangeDestination.bind(this);
     this._onChangePrice = this._onChangePrice.bind(this);
-
-    this._timeObject = {
-      startHour: null,
-      startMinutes: null,
-      endHour: null,
-      endMinutes: null
-    };
   }
 
   get template() {
@@ -38,6 +33,7 @@ export default class CardEdit extends ComponentCard {
     this._element.querySelector(`.travel-way__select`).addEventListener(`change`, this._onSelectWay);
     this._element.querySelector(`.point__destination-input`).addEventListener(`change`, this._onChangeDestination);
     this._element.querySelector(`.point__price .point__input`).addEventListener(`change`, this._onChangePrice);
+    this._element.querySelector(`.point__buttons [type="reset"]`).addEventListener(`click`, this._onDelete);
 
     flatpickr(
         this._timeInput,
@@ -65,7 +61,7 @@ export default class CardEdit extends ComponentCard {
   }
 
   _onChangePrice(event) {
-    this._data.price = event.target.value;
+    this._data.price = parseInt(event.target.value, 10);
   }
 
   reRender() {
@@ -77,22 +73,35 @@ export default class CardEdit extends ComponentCard {
   unbind() {
     this._element.querySelector(`.point form`).removeEventListener(`submit`, this._onSubmit);
     this._element.querySelector(`.travel-way__select`).removeEventListener(`change`, this._onSelectWay);
-    this._element.querySelector(`.point__destination-input`).addEventListener(`change`, this._onChangeDestination);
-    this._element.querySelector(`.point__price .point__input`).addEventListener(`change`, this._onChangePrice);
-  }
-
-  _gatherData() {
-    return this._data;
+    this._element.querySelector(`.point__destination-input`).removeEventListener(`change`, this._onChangeDestination);
+    this._element.querySelector(`.point__price .point__input`).removeEventListener(`change`, this._onChangePrice);
+    this._element.querySelector(`.point__buttons [type="reset"]`).removeEventListener(`click`, this._onDelete);
   }
 
   _onSubmit(event) {
     event.preventDefault();
     if (this._submitHandler) {
-      this._submitHandler(this._gatherData());
+      this._submitHandler(this._data);
     }
   }
 
   setOnSubmit(submitHandler) {
     this._submitHandler = submitHandler;
+  }
+
+  _onDelete(event) {
+    event.preventDefault();
+    if (this._deleteHandler) {
+      this._deleteHandler(this);
+    }
+  }
+
+  setOnDelete(deleteHandler) {
+    this._deleteHandler = deleteHandler;
+  }
+
+  destroy() {
+    this.container.removeChild(this._element);
+    this.unrender();
   }
 }

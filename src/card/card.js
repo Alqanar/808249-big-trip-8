@@ -1,10 +1,12 @@
-import ComponentCard from './component-card.js';
+import cloneDeep from 'lodash/cloneDeep';
+
+import BaseComponent from '../base-component.js';
 import {
   getTemplate
 } from './createCardTemplate.js';
 
 
-export default class Card extends ComponentCard {
+export default class Card extends BaseComponent {
   constructor(data) {
     super(data);
 
@@ -16,12 +18,8 @@ export default class Card extends ComponentCard {
     return getTemplate(this._data);
   }
 
-  get id() {
-    return this._data.id;
-  }
-
   get data() {
-    return {...this._data};
+    return cloneDeep(this._data);
   }
 
   bind() {
