@@ -74,10 +74,11 @@ const renderDestination = (destinations, title, destination) =>
   </div>`;
 
 const renderTime = (time) =>
-  `<label class="point__time">
+  `<div class="point__time">
     choose time
-    <input class="point__input" type="text" value="${moment(time.dateStart).format(`HH:mm`)} — ${moment(time.dateEnd).format(`HH:mm`)}" name="time" placeholder="00:00 — 00:00">
-  </label>`;
+    <input class="point__input" type="text" value="${moment(time.dateStart).format(`HH:mm`)}" name="date-start" placeholder="00:00">
+    <input class="point__input" type="text" value="${moment(time.dateEnd).format(`HH:mm`)}" name="date-end" placeholder="00:00">
+  </div>`;
 
 const renderPrice = (price) =>
   `<label class="point__price">

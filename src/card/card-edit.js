@@ -27,7 +27,7 @@ export default class CardEdit extends BaseComponent {
   }
 
   bind() {
-    this._timeInput = this._element.querySelector(`.point__time .point__input`);
+    // this._timeInput = this._element.querySelector(`.point__time .point__input`);
     const time = this._data.time;
     this._element.querySelector(`.point form`).addEventListener(`submit`, this._onSubmit);
     this._element.querySelector(`.travel-way__select`).addEventListener(`change`, this._onSelectWay);
@@ -36,15 +36,24 @@ export default class CardEdit extends BaseComponent {
     this._element.querySelector(`.point__buttons [type="reset"]`).addEventListener(`click`, this._onDelete);
 
     flatpickr(
-        this._timeInput,
-        {mode: `range`,
-          dateFormat: `H:i`,
-          defaultDate: [time.dateStart, time.dateEnd],
+        this._element.querySelector(`.point__time .point__input:first-of-type`),
+        {dateFormat: `H:i`,
+          defaultDate: [time.dateStart],
           enableTime: true,
           onClose: (selectedDates) => {
             this._data.time.dateStart = selectedDates[0];
-            this._data.time.dateEnd = selectedDates[1];
-            this._data.duration = getDuration(this._data.time);
+          },
+          [`time_24hr`]: true
+        }
+    );
+
+    flatpickr(
+        this._element.querySelector(`.point__time .point__input:last-of-type`),
+        {dateFormat: `H:i`,
+          defaultDate: [time.dateEnd],
+          enableTime: true,
+          onClose: (selectedDates) => {
+            this._data.time.dateEnd = selectedDates[0];
           },
           [`time_24hr`]: true
         }
@@ -81,6 +90,7 @@ export default class CardEdit extends BaseComponent {
   _onSubmit(event) {
     event.preventDefault();
     if (this._submitHandler) {
+      this._data.duration = getDuration(this._data.time);
       this._submitHandler(this._data);
     }
   }
