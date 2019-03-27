@@ -1,17 +1,14 @@
 // import {
-//   NamesFilterDict
-// } from './filters/namesFilterDict.js';
+//   preparedData
+// } from './data.js';
 import {
-  preparedData
-} from './data.js';
-import {
-  renderBoardCards,
-  setData
+  init,
+  // renderBoardCards,
+  // setData
 } from './app.js';
 
 
-// renderFilters(NamesFilterDict);
+// setData(preparedData);
+init({endPoint: `https://es8-demo-srv.appspot.com/big-trip`, authorization: `Basic eo0w590ik29889a`});
 
-setData(preparedData);
-
-renderBoardCards();
+// renderBoardCards();

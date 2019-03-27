@@ -103,7 +103,7 @@ const createOffers = (specialsArray) => {
   let specials = ``;
   for (let special of specialsArray) {
     specials +=
-      `<input class="point__offers-input visually-hidden" type="checkbox" id="${special.name}" name="offer" value="${special.name}">
+      `<input class="point__offers-input visually-hidden" type="checkbox" id="${special.name}" name="offer" value="${special.name}" ${special.accepted ? `checked` : ``}>
       <label for="${special.name}" class="point__offers-label">
         <span class="point__offer-service">${special.name}</span> + €<span class="point__offer-price">${special.price}</span>
       </label>`;
@@ -119,18 +119,18 @@ const renderOffers = (specials) =>
     </div>
   </section>`;
 
-const createDescription = (texts) => {
-  let blockTexts = ``;
-  for (let line of texts) {
-    blockTexts += line + ` `;
-  }
-  return blockTexts;
-};
+// const createDescription = (texts) => {
+//   let blockTexts = ``;
+//   for (let line of texts) {
+//     blockTexts += line + ` `;
+//   }
+//   return blockTexts;
+// };
 
 const createLinks = (links) => {
   let blockLinks = ``;
   for (let link of links) {
-    blockLinks += `<img src="${link}" alt="picture from place" class="point__destination-image">`;
+    blockLinks += `<img src="${link.src}" alt="${link.value}" class="point__destination-image">`;
   }
   return blockLinks;
 };
@@ -138,12 +138,12 @@ const createLinks = (links) => {
 const renderPointDestination = (texts, links) =>
   `<section class="point__destination">
     <h3 class="point__details-title">Destination</h3>
-    <p class="point__destination-text">${createDescription(texts)}</p>
+    <p class="point__destination-text">${texts}</p>
     <div class="point__destination-images">
       ${createLinks(links)}
     </div>
   </section>`;
-
+// <p class="point__destination-text">${createDescription(texts)}</p>
 
 export const getTemplate = (data) =>
   `<article class="point">
@@ -162,7 +162,7 @@ export const getTemplate = (data) =>
       </header>
       <section class="point__details">
         ${renderOffers(data.specials)}
-        ${renderPointDestination(data.text, data.src)}
+        ${renderPointDestination(data.text, data.pictures)}
         <input type="hidden" class="point__total-price" name="total-price" value="">
       </section>
     </form>

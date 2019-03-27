@@ -27,3 +27,22 @@ export const getDuration = ({dateStart, dateEnd}) => {
     minutes
   };
 };
+
+export const transformData = (objectData) => {
+  let newData = {};
+  newData.id = parseInt(objectData.id, 10);
+  newData.type = objectData.type;
+  newData.destination = objectData.destination.name;
+  newData.time = {};
+  newData.time.dateStart = new Date(objectData.date_from);
+  newData.time.dateEnd = new Date(objectData.date_to);
+  newData.duration = getDuration(newData.time);
+  newData.price = objectData.base_price;
+  newData.specials = objectData.offers.map(({accepted, price, title}) => ({accepted, price, name: title}));
+  newData.text = objectData.destination.description;
+  newData.pictures = objectData.destination.pictures.map(({src, description}) => ({src, value: description}));
+
+  // newData.pictures.src = objectData.destination.pictures.src;
+  // newData.pictures.value = objectData.destination.pictures.description;
+  return newData;
+};

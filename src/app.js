@@ -2,6 +2,10 @@ import Card from './card/card.js';
 import CardEdit from './card/card-edit.js';
 import Filters from './filters/filters.js';
 import Statistic from './statistic/statistic.js';
+import API from './api.js';
+import {
+  transformData
+} from './utils.js';
 import {
   NamesFilterDict
 } from './filters/namesFilterDict.js';
@@ -12,12 +16,20 @@ const containerCards = document.querySelector(`.trip-day__items`);
 let activeLink = document.querySelector(`.view-switch__item--active`);
 
 let savedData = [];
+let api;
 const statistic = new Statistic(savedData);
 
+export const init = (address) => {
+  api = new API(address);
 
-export const setData = (preparedData) => {
-  savedData = preparedData;
+  api.getPoints()
+    // .then((points) => console.log(points))
+    .then((points) => {
+      savedData = points.map(transformData);
+    })
+    .then(() => renderBoardCards(savedData));
 };
+
 
 const onChangeFilter = (filtersId) => {
   let dataToRender = [];
