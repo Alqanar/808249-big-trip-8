@@ -1,4 +1,5 @@
 import flatpickr from 'flatpickr';
+import cloneDeep from 'lodash/cloneDeep';
 
 import BaseComponent from '../base-component.js';
 import {
@@ -63,25 +64,25 @@ export default class CardEdit extends BaseComponent {
 
   _onSelectWay(event) {
     this._data.type = event.target.value;
-    const findIndexOffers = this._offers.findIndex((element) => element.type === this._data.type);
-    if (findIndexOffers === -1) {
-      this._data.specials = [];
+    const foundOffers = this._offers.find((element) => element.type === this._data.type);
+    if (foundOffers) {
+      this._data.specials = cloneDeep(foundOffers.offers); /* сейчас все как у меня, но может измениться offers.name на offers.title */
     } else {
-      this._data.specials = this._offers[findIndexOffers].offers; /* сейчас все как у меня, но может измениться offers.name на offers.title */
+      this._data.specials = [];
     }
     this.reRender();
   }
 
   _onChangeDestination(event) {
     this._data.destination = event.target.value;
-    const findIndexDestination = this._destinations.findIndex((element) => element.name === this._data.destination);
+    const foundDestination = this._destinations.find((element) => element.name === this._data.destination);
 
-    if (findIndexDestination === -1) {
+    if (foundDestination) {
+      this._data.text = foundDestination.description;
+      this._data.pictures = foundDestination.pictures.map(({src, description}) => ({src, value: description}));
+    } else {
       this._data.text = ``;
       this._data.pictures = [];
-    } else {
-      this._data.text = this._destinations[findIndexDestination].description;
-      this._data.pictures = this._destinations[findIndexDestination].pictures.map(({src, description}) => ({src, value: description}));
     }
 
     this.reRender();
@@ -105,10 +106,21 @@ export default class CardEdit extends BaseComponent {
     this._element.querySelector(`.point__buttons [type="reset"]`).removeEventListener(`click`, this._onDelete);
   }
 
+  _updateOffersAcceptedStatus() {
+    const offersInput = this._element.querySelectorAll(`.point__offers-input`);
+    for (let offer of offersInput) {
+      const foundInput = this._data.specials.find((element) => element.name === offer.id);
+      if (foundInput) {
+        foundInput.accepted = offer.checked;
+      }
+    }
+  }
+
   _onSubmit(event) {
     event.preventDefault();
     if (this._submitHandler) {
       this._data.duration = getDuration(this._data.time);
+      this._updateOffersAcceptedStatus();
       this._submitHandler(this._data);
     }
   }
