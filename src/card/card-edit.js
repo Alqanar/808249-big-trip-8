@@ -10,10 +10,11 @@ import {
 
 
 export default class CardEdit extends BaseComponent {
-  constructor(data, destinations) {
+  constructor(data, destinations, offers) {
     super(data);
 
     this._destinations = destinations;
+    this._offers = offers;
     this._submitHandler = null;
     this._deleteHandler = null;
     this._onSubmit = this._onSubmit.bind(this);
@@ -62,6 +63,12 @@ export default class CardEdit extends BaseComponent {
 
   _onSelectWay(event) {
     this._data.type = event.target.value;
+    const findIndexOffers = this._offers.findIndex((element) => element.type === this._data.type);
+    if (findIndexOffers === -1) {
+      this._data.specials = [];
+    } else {
+      this._data.specials = this._offers[findIndexOffers].offers; /* сейчас все как у меня, но может измениться offers.name на offers.title */
+    }
     this.reRender();
   }
 

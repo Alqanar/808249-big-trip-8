@@ -17,6 +17,7 @@ let activeLink = document.querySelector(`.view-switch__item--active`);
 
 let savedData = [];
 let savedDestinations = [];
+let savedOffers = [];
 let api;
 const statistic = new Statistic(savedData);
 
@@ -28,13 +29,17 @@ export const init = (address) => {
       savedDestinations = destinations;
     });
 
+  api.getOffers()
+    .then((offers) => {
+      savedOffers = offers;
+    });
+
   api.getPoints()
     .then((points) => {
       savedData = points.filter(Boolean).map(transformData);
-    })
-    .then(() => renderBoardCards(savedData));
+      renderBoardCards(savedData);
+    });
 };
-
 
 const onChangeFilter = (filtersId) => {
   let dataToRender = [];
@@ -89,7 +94,7 @@ const sync = (newDataObj) => {
 };
 
 const onClickCard = (card) => {
-  const cardEdit = new CardEdit(card.data, savedDestinations);
+  const cardEdit = new CardEdit(card.data, savedDestinations, savedOffers);
   cardEdit.render();
   card.replace(cardEdit);
   cardEdit.setOnSubmit((dataCard) => {

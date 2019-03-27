@@ -4,14 +4,6 @@ import {
   TYPES_MAP
 } from '../trip-types.js';
 
-// const Destinations = [`Airport`,
-//   `Geneva`,
-//   `Chamonix`,
-//   `hotel`,
-//   `Gare Routière`,
-//   `Mausolée Brunswick`,
-//   `Scandale`
-// ];
 
 const createWays = (type, data) => {
   let moves = ``;
