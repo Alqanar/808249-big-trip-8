@@ -4,14 +4,14 @@ import {
   TYPES_MAP
 } from '../trip-types.js';
 
-const Destinations = [`Airport`,
-  `Geneva`,
-  `Chamonix`,
-  `hotel`,
-  `Gare Routière`,
-  `Mausolée Brunswick`,
-  `Scandale`
-];
+// const Destinations = [`Airport`,
+//   `Geneva`,
+//   `Chamonix`,
+//   `hotel`,
+//   `Gare Routière`,
+//   `Mausolée Brunswick`,
+//   `Scandale`
+// ];
 
 const createWays = (type, data) => {
   let moves = ``;
@@ -58,8 +58,8 @@ const renderCheckedWay = (type, dataType) =>
 
 const createDestinaion = (destinations) => {
   let destinationForSelect = ``;
-  for (let destination of destinations) {
-    destinationForSelect += `<option value="${destination}"></option>`;
+  for (let {name} of destinations) {
+    destinationForSelect += `<option value="${name}"></option>`;
   }
   return destinationForSelect;
 };
@@ -119,14 +119,6 @@ const renderOffers = (specials) =>
     </div>
   </section>`;
 
-// const createDescription = (texts) => {
-//   let blockTexts = ``;
-//   for (let line of texts) {
-//     blockTexts += line + ` `;
-//   }
-//   return blockTexts;
-// };
-
 const createLinks = (links) => {
   let blockLinks = ``;
   for (let link of links) {
@@ -143,9 +135,8 @@ const renderPointDestination = (texts, links) =>
       ${createLinks(links)}
     </div>
   </section>`;
-// <p class="point__destination-text">${createDescription(texts)}</p>
 
-export const getTemplate = (data) =>
+export const getTemplate = (data, destinations) =>
   `<article class="point">
     <form action="" method="get">
       <header class="point__header">
@@ -154,7 +145,7 @@ export const getTemplate = (data) =>
           <input class="point__input" type="text" placeholder="MAR 18" name="day">
         </label>
         ${renderCheckedWay(data.type, TYPES_MAP)}
-        ${renderDestination(Destinations, TYPES_MAP[data.type].title, data.destination)}
+        ${renderDestination(destinations, TYPES_MAP[data.type].title, data.destination)}
         ${renderTime(data.time)}
         ${renderPrice(data.price)}
         ${renderButtons()}

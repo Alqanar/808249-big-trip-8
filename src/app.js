@@ -16,16 +16,21 @@ const containerCards = document.querySelector(`.trip-day__items`);
 let activeLink = document.querySelector(`.view-switch__item--active`);
 
 let savedData = [];
+let savedDestinations = [];
 let api;
 const statistic = new Statistic(savedData);
 
 export const init = (address) => {
   api = new API(address);
 
+  api.getDestinations()
+    .then((destinations) => {
+      savedDestinations = destinations;
+    });
+
   api.getPoints()
-    // .then((points) => console.log(points))
     .then((points) => {
-      savedData = points.map(transformData);
+      savedData = points.filter(Boolean).map(transformData);
     })
     .then(() => renderBoardCards(savedData));
 };
@@ -67,8 +72,11 @@ const deleteTask = (cardEditInstance) => {
   const soughtId = savedData.findIndex((element) =>
     element.id === cardEditInstance.id
   );
-  savedData.splice(soughtId, 1);
-  cardEditInstance.destroy();
+  api.deletePoints(soughtId)
+    .then(() => {
+      savedData.splice(soughtId, 1);
+      cardEditInstance.destroy();
+    });
 };
 
 const sync = (newDataObj) => {
@@ -81,7 +89,7 @@ const sync = (newDataObj) => {
 };
 
 const onClickCard = (card) => {
-  const cardEdit = new CardEdit(card.data);
+  const cardEdit = new CardEdit(card.data, savedDestinations);
   cardEdit.render();
   card.replace(cardEdit);
   cardEdit.setOnSubmit((dataCard) => {

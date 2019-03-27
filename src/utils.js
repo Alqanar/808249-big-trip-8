@@ -42,7 +42,5 @@ export const transformData = (objectData) => {
   newData.text = objectData.destination.description;
   newData.pictures = objectData.destination.pictures.map(({src, description}) => ({src, value: description}));
 
-  // newData.pictures.src = objectData.destination.pictures.src;
-  // newData.pictures.value = objectData.destination.pictures.description;
   return newData;
 };

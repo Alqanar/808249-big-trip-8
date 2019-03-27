@@ -10,9 +10,10 @@ import {
 
 
 export default class CardEdit extends BaseComponent {
-  constructor(data) {
+  constructor(data, destinations) {
     super(data);
 
+    this._destinations = destinations;
     this._submitHandler = null;
     this._deleteHandler = null;
     this._onSubmit = this._onSubmit.bind(this);
@@ -23,11 +24,10 @@ export default class CardEdit extends BaseComponent {
   }
 
   get template() {
-    return getTemplate(this._data);
+    return getTemplate(this._data, this._destinations);
   }
 
   bind() {
-    // this._timeInput = this._element.querySelector(`.point__time .point__input`);
     const time = this._data.time;
     this._element.querySelector(`.point form`).addEventListener(`submit`, this._onSubmit);
     this._element.querySelector(`.travel-way__select`).addEventListener(`change`, this._onSelectWay);
@@ -67,6 +67,17 @@ export default class CardEdit extends BaseComponent {
 
   _onChangeDestination(event) {
     this._data.destination = event.target.value;
+    const findIndexDestination = this._destinations.findIndex((element) => element.name === this._data.destination);
+
+    if (findIndexDestination === -1) {
+      this._data.text = ``;
+      this._data.pictures = [];
+    } else {
+      this._data.text = this._destinations[findIndexDestination].description;
+      this._data.pictures = this._destinations[findIndexDestination].pictures.map(({src, description}) => ({src, value: description}));
+    }
+
+    this.reRender();
   }
 
   _onChangePrice(event) {

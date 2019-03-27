@@ -38,9 +38,9 @@ export default class API {
       .then(toJSON);
   }
 
-  createTask({task}) {
+  createPoints({task}) {
     return this._load({
-      url: `tasks`,
+      url: `points`,
       method: Method.POST,
       body: JSON.stringify(task),
       headers: new Headers({'Content-Type': `application/json`})
@@ -48,9 +48,9 @@ export default class API {
       .then(toJSON);
   }
 
-  updateTask({id, data}) {
+  updatePoints({id, data}) {
     return this._load({
-      url: `tasks/${id}`,
+      url: `points/${id}`,
       method: Method.PUT,
       body: JSON.stringify(data),
       headers: new Headers({'Content-Type': `application/json`})
@@ -58,8 +58,8 @@ export default class API {
       .then(toJSON);
   }
 
-  deleteTask({id}) {
-    return this._load({url: `tasks/${id}`, method: Method.DELETE});
+  deletePoints(id) {
+    return this._load({url: `points/${id}`, method: Method.DELETE});
   }
 
   _load({url, method = Method.GET, body = null, headers = new Headers()}) {
