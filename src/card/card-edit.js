@@ -37,7 +37,7 @@ export default class CardEdit extends BaseComponent {
     this._element.querySelector(`.point__price .point__input`).addEventListener(`change`, this._onChangePrice);
     this._element.querySelector(`.point__buttons [type="reset"]`).addEventListener(`click`, this._onDelete);
 
-    flatpickr(
+    this._startPicker = flatpickr(
         this._element.querySelector(`.point__time .point__input:first-of-type`),
         {dateFormat: `H:i`,
           defaultDate: [time.dateStart],
@@ -49,7 +49,7 @@ export default class CardEdit extends BaseComponent {
         }
     );
 
-    flatpickr(
+    this._endPicker = flatpickr(
         this._element.querySelector(`.point__time .point__input:last-of-type`),
         {dateFormat: `H:i`,
           defaultDate: [time.dateEnd],
@@ -104,6 +104,8 @@ export default class CardEdit extends BaseComponent {
     this._element.querySelector(`.point__destination-input`).removeEventListener(`change`, this._onChangeDestination);
     this._element.querySelector(`.point__price .point__input`).removeEventListener(`change`, this._onChangePrice);
     this._element.querySelector(`.point__buttons [type="reset"]`).removeEventListener(`click`, this._onDelete);
+    this._startPicker.destroy();
+    this._endPicker.destroy();
   }
 
   _updateOffersAcceptedStatus() {
@@ -143,5 +145,14 @@ export default class CardEdit extends BaseComponent {
   destroy() {
     this.container.removeChild(this._element);
     this.unrender();
+  }
+
+  shake() {
+    const ANIMATION_TIMEOUT = 600;
+    this._element.style.animation = `shake ${ANIMATION_TIMEOUT / 1000}s`;
+
+    setTimeout(() => {
+      this._element.style.animation = ``;
+    }, ANIMATION_TIMEOUT);
   }
 }
