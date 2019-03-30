@@ -3,7 +3,9 @@ import cloneDeep from 'lodash/cloneDeep';
 
 import BaseComponent from '../base-component.js';
 import {
-  getDuration
+  getDuration,
+  block,
+  unblock
 } from '../utils.js';
 import {
   getTemplate
@@ -23,6 +25,8 @@ export default class CardEdit extends BaseComponent {
     this._onSelectWay = this._onSelectWay.bind(this);
     this._onChangeDestination = this._onChangeDestination.bind(this);
     this._onChangePrice = this._onChangePrice.bind(this);
+    this._inputs = null;
+    this._buttons = null;
   }
 
   get template() {
@@ -66,7 +70,7 @@ export default class CardEdit extends BaseComponent {
     this._data.type = event.target.value;
     const foundOffers = this._offers.find((element) => element.type === this._data.type);
     if (foundOffers) {
-      this._data.specials = cloneDeep(foundOffers.offers); /* сейчас все как у меня, но может измениться offers.name на offers.title */
+      this._data.specials = cloneDeep(foundOffers.offers);
     } else {
       this._data.specials = [];
     }
@@ -90,12 +94,6 @@ export default class CardEdit extends BaseComponent {
 
   _onChangePrice(event) {
     this._data.price = parseInt(event.target.value, 10);
-  }
-
-  reRender() {
-    const oldElement = this._element;
-    this.unbind();
-    this.container.replaceChild(this.render(), oldElement);
   }
 
   unbind() {
@@ -147,8 +145,25 @@ export default class CardEdit extends BaseComponent {
     this.unrender();
   }
 
-  shake() {
+  _getObjectElements() {
+    this._inputs = this._element.querySelectorAll(`form input`);
+    this._buttons = this._element.querySelectorAll(`form button`);
+  }
+
+  disableView() {
+    this._getObjectElements();
+    this._element.style.boxShadow = `0 11px 20px 0 rgba(0,0,0,0.22)`;
+
+    block(this._inputs, this._buttons);
+  }
+
+  enableView() {
+    unblock(this._inputs, this._buttons);
+  }
+
+  showError() {
     const ANIMATION_TIMEOUT = 600;
+    this._element.style.boxShadow = `0 0 10px 0 red`;
     this._element.style.animation = `shake ${ANIMATION_TIMEOUT / 1000}s`;
 
     setTimeout(() => {

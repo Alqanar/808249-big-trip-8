@@ -48,7 +48,7 @@ const renderCheckedWay = (type, dataType) =>
     ${renderWays(type, dataType)}
   </div>`;
 
-const createDestinaion = (destinations) => {
+const createDestination = (destinations) => {
   let destinationForSelect = ``;
   for (let {name} of destinations) {
     destinationForSelect += `<option value="${name}"></option>`;
@@ -61,7 +61,7 @@ const renderDestination = (destinations, title, destination) =>
     <label class="point__destination-label" for="destination">${title}</label>
     <input class="point__destination-input" list="destination-select" id="destination" value="${destination}" name="destination">
     <datalist id="destination-select">
-      ${createDestinaion(destinations)}
+      ${createDestination(destinations)}
     </datalist>
   </div>`;
 

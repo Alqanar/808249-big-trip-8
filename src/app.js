@@ -2,14 +2,10 @@ import Card from './card/card.js';
 import CardEdit from './card/card-edit.js';
 import Filters from './filters/filters.js';
 import Statistic from './statistic/statistic.js';
-import API from './api.js';
+import LocalModel from './local-model.js';
+
 import {
-  transformData,
-  transformDataToServer,
-  createElement,
-  getObjectElements,
-  block,
-  unblock
+  createElement
 } from './utils.js';
 import {
   NamesFilterDict
@@ -23,33 +19,19 @@ const loading = createElement(`<p ${MESSAGE_STYLE}>Loading route...</p>`);
 const error = createElement(`<p ${MESSAGE_STYLE}>Something went wrong while loading your route info. Check your connection or try again later</p>`);
 let activeLink = document.querySelector(`.view-switch__item--active`);
 
-let savedData = [];
-let savedDestinations = [];
-let savedOffers = [];
-let api;
-const statistic = new Statistic(savedData);
+let localModel;
+const statistic = new Statistic([]);
 
 export const init = (address) => {
-  api = new API(address);
-
-  api.getDestinations()
-    .then((destinations) => {
-      savedDestinations = destinations;
-    });
-
-  api.getOffers()
-    .then((offers) => {
-      savedOffers = offers;
-    });
+  localModel = new LocalModel(address);
 
   containerCards.appendChild(loading);
 
-  api.getPoints()
-    .then((points) => {
-      savedData = points.filter(Boolean).map(transformData);
-      if (savedData.length) {
+  localModel.init()
+    .then(() => {
+      if (localModel.getSavedData().length) {
         containerCards.removeChild(loading);
-        renderBoardCards(savedData);
+        renderBoardCards(localModel.getSavedData());
       }
     })
     .catch(() => {
@@ -63,15 +45,15 @@ const onChangeFilter = (filtersId) => {
   const dateNow = new Date().getTime();
   switch (filtersId) {
     case `filter-everything`:
-      dataToRender = savedData;
+      dataToRender = localModel.getSavedData();
       break;
 
     case `filter-future`:
-      dataToRender = savedData.filter(({time: {dateStart}}) => dateStart.getTime() > dateNow);
+      dataToRender = localModel.getSavedData().filter(({time: {dateStart}}) => dateStart.getTime() > dateNow);
       break;
 
     case `filter-past`:
-      dataToRender = savedData.filter(({time: {dateEnd}}) => dateEnd.getTime() < dateNow);
+      dataToRender = localModel.getSavedData().filter(({time: {dateEnd}}) => dateEnd.getTime() < dateNow);
       break;
   }
   renderBoardCards(dataToRender);
@@ -90,103 +72,60 @@ const renderFilters = (filterData) => {
 
 renderFilters(NamesFilterDict);
 
-const deleteTask = (cardEditInstance) => {
-  const soughtId = savedData.findIndex((element) =>
-    element.id === cardEditInstance.id
-  );
-  cardEditInstance.element.style.boxShadow = `0 11px 20px 0 rgba(0,0,0,0.22)`;
-  const elements = getObjectElements(cardEditInstance);
+
+const deleteCard = (cardEditInstance) => {
   const buttonDelete = cardEditInstance.element.querySelector(`.point__button--save + .point__button`);
 
-  block({
-    inputs: elements.inputs,
-    buttons: elements.buttons,
-    button: buttonDelete,
-    text: `Deleting...`
-  });
+  cardEditInstance.disableView();
+  buttonDelete.innerHTML = `Deleting...`;
 
-  api.deletePoints(cardEditInstance.id)
+  localModel.deletePoint(cardEditInstance.id)
     .then(() => {
-      unblock({
-        inputs: elements.inputs,
-        buttons: elements.buttons,
-        button: buttonDelete,
-        text: `Delete`
-      });
-      savedData.splice(soughtId, 1);
+      cardEditInstance.enableView();
+      buttonDelete.innerHTML = `Delete`;
+      const soughtId = localModel.getSavedData().findIndex((element) =>
+        element.id === cardEditInstance.id
+      );
+      localModel.getSavedData().splice(soughtId, 1);
       cardEditInstance.destroy();
     })
     .catch(() => {
-      unblock({
-        inputs: elements.inputs,
-        buttons: elements.buttons,
-        button: buttonDelete,
-        text: `Delete`
-      });
-      cardEditInstance.element.style.boxShadow = `0 0 10px 0 red`;
-      cardEditInstance.shake();
-    });
-};
-
-const sync = (newDataObj) => {
-  return api.updatePoints({id: newDataObj.id, data: transformDataToServer(newDataObj)})
-    .then((updateData) => {
-      const dataForUser = transformData(updateData);
-      savedData = savedData.map((element) => {
-        if (element.id === dataForUser.id) {
-          return dataForUser;
-        }
-        return element;
-      });
+      cardEditInstance.enableView();
+      buttonDelete.innerHTML = `Delete`;
+      cardEditInstance.showError();
     });
 };
 
 const onClickCard = (card) => {
-  const cardEdit = new CardEdit(card.data, savedDestinations, savedOffers);
+  const cardEdit = new CardEdit(card.data, localModel.getSavedDestinations(), localModel.getSavedOffers());
   cardEdit.render();
   card.replace(cardEdit);
   cardEdit.setOnSubmit((dataCard) => {
-    cardEdit.element.style.boxShadow = `0 11px 20px 0 rgba(0,0,0,0.22)`;
     card.saveChanges(dataCard);
-
-    const elements = getObjectElements(cardEdit);
     const buttonSave = cardEdit.element.querySelector(`.point__button--save`);
 
-    block({
-      inputs: elements.inputs,
-      buttons: elements.buttons,
-      button: buttonSave,
-      text: `Saving...`
-    });
+    cardEdit.disableView();
+    buttonSave.innerHTML = `Saving...`;
 
-    sync(dataCard)
+    localModel.updatePoints(dataCard)
       .then(() => {
-        unblock({
-          inputs: elements.inputs,
-          buttons: elements.buttons,
-          button: buttonSave,
-          text: `Save`
-        });
+        cardEdit.enableView();
+        buttonSave.innerHTML = `Save`;
         card.render();
         cardEdit.replace(card);
         cardEdit.unrender();
       })
       .catch(() => {
-        unblock({
-          inputs: elements.inputs,
-          buttons: elements.buttons,
-          button: buttonSave,
-          text: `Save`
-        });
-        cardEdit.element.style.boxShadow = `0 0 10px 0 red`;
-        cardEdit.shake();
+        cardEdit.enableView();
+        buttonSave.innerHTML = `Save`;
+        cardEdit.showError();
       });
   });
-  cardEdit.setOnDelete(deleteTask);
+  cardEdit.setOnDelete(deleteCard);
   card.unrender();
 };
 
-export const renderBoardCards = (data = savedData) => {
+export const renderBoardCards = (data = localModel.getSavedData()) => {
   containerCards.innerHTML = ``;
   const fragment = document.createDocumentFragment();
   for (let element of data) {
@@ -204,7 +143,7 @@ const renderStatistic = () => {
   } else {
     document.body.appendChild(statistic.render());
   }
-  statistic.renderCharts(savedData);
+  statistic.renderCharts(localModel.getSavedData());
 };
 
 containerElementFilter.addEventListener(`click`, (e) => {

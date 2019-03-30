@@ -58,7 +58,7 @@ export default class API {
       .then(toJSON);
   }
 
-  deletePoints(id) {
+  deletePoint(id) {
     return this._load({url: `points/${id}`, method: Method.DELETE});
   }
 

@@ -7,15 +7,6 @@ export const createElement = (html) => {
   return newElement.firstChild;
 };
 
-// export const getRandomInteger = (min, max) =>
-//   min + Math.floor(Math.random() * (max + 1 - min));
-
-// const getRandomComparator = () =>
-//   Math.random() - 0.5;
-
-// export const getMixedArray = (list) =>
-//   list.slice(0).sort(getRandomComparator);
-
 export const getDuration = ({dateStart, dateEnd}) => {
   dateStart = moment(dateStart);
   dateEnd = moment(dateEnd);
@@ -28,22 +19,22 @@ export const getDuration = ({dateStart, dateEnd}) => {
   };
 };
 
-export const transformData = (objectData) => {
-  let newData = {};
-  newData.id = parseInt(objectData.id, 10);
-  newData.type = objectData.type;
-  newData.destination = objectData.destination.name;
-  newData.time = {};
-  newData.time.dateStart = new Date(objectData.date_from);
-  newData.time.dateEnd = new Date(objectData.date_to);
-  newData.duration = getDuration(newData.time);
-  newData.price = objectData.base_price;
-  newData.specials = objectData.offers.map(({accepted, price, title}) => ({accepted, price, name: title}));
-  newData.text = objectData.destination.description;
-  newData.pictures = objectData.destination.pictures.map(({src, description}) => ({src, value: description}));
-  newData.favorite = objectData.is_favorite;
-
-  return newData;
+export const transformDataToCard = (objectData) => {
+  const time = {};
+  time.dateStart = new Date(objectData.date_from);
+  time.dateEnd = new Date(objectData.date_to);
+  return {
+    'id': parseInt(objectData.id, 10),
+    'type': objectData.type,
+    'destination': objectData.destination.name,
+    'time': time,
+    'duration': getDuration(time),
+    'price': objectData.base_price,
+    'specials': objectData.offers.map(({accepted, price, title}) => ({accepted, price, name: title})),
+    'text': objectData.destination.description,
+    'pictures': objectData.destination.pictures.map(({src, description}) => ({src, value: description})),
+    'favorite': objectData.is_favorite
+  };
 };
 
 export const transformDataToServer = (objectUserData) => {
@@ -69,23 +60,12 @@ const changeStatusDisabled = (collection, status) => {
   }
 };
 
-export const getObjectElements = (classInstance) => {
-  const inputs = classInstance.element.querySelectorAll(`form input`);
-  const buttons = classInstance.element.querySelectorAll(`form button`);
-  return {
-    inputs,
-    buttons
-  };
-};
-
-export const block = ({inputs, buttons, button, text}) => {
+export const block = (inputs, buttons) => {
   changeStatusDisabled(inputs, true);
   changeStatusDisabled(buttons, true);
-  button.innerHTML = text;
 };
 
-export const unblock = ({inputs, buttons, button, text}) => {
+export const unblock = (inputs, buttons) => {
   changeStatusDisabled(inputs, false);
   changeStatusDisabled(buttons, false);
-  button.innerHTML = text;
 };
