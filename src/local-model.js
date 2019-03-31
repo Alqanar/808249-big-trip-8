@@ -56,7 +56,11 @@ export default class LocalModel {
   }
 
   deletePoint(id) {
-    return this._api.deletePoint(id);
+    return this._api.deletePoint(id)
+      .then(() => {
+        const index = this._savedData.findIndex((item) => item.id === id);
+        this._savedData.splice(index, 1);
+      });
   }
 
   updatePoints(newDataObj) {
@@ -64,10 +68,7 @@ export default class LocalModel {
     .then((updateData) => {
       const dataForUser = transformDataToCard(updateData);
       this._savedData = this._savedData.map((element) => {
-        if (element.id === dataForUser.id) {
-          return dataForUser;
-        }
-        return element;
+        return (element.id === dataForUser.id) ? dataForUser : element;
       });
     });
   }

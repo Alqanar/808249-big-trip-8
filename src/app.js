@@ -74,24 +74,18 @@ renderFilters(NamesFilterDict);
 
 
 const deleteCard = (cardEditInstance) => {
-  const buttonDelete = cardEditInstance.element.querySelector(`.point__button--save + .point__button`);
-
   cardEditInstance.disableView();
-  buttonDelete.innerHTML = `Deleting...`;
+  cardEditInstance.changeTextOnButtonDelete(`Deleting...`);
 
   localModel.deletePoint(cardEditInstance.id)
     .then(() => {
       cardEditInstance.enableView();
-      buttonDelete.innerHTML = `Delete`;
-      const soughtId = localModel.getSavedData().findIndex((element) =>
-        element.id === cardEditInstance.id
-      );
-      localModel.getSavedData().splice(soughtId, 1);
+      cardEditInstance.changeTextOnButtonDelete(`Delete`);
       cardEditInstance.destroy();
     })
     .catch(() => {
       cardEditInstance.enableView();
-      buttonDelete.innerHTML = `Delete`;
+      cardEditInstance.changeTextOnButtonDelete(`Delete`);
       cardEditInstance.showError();
     });
 };
@@ -102,22 +96,21 @@ const onClickCard = (card) => {
   card.replace(cardEdit);
   cardEdit.setOnSubmit((dataCard) => {
     card.saveChanges(dataCard);
-    const buttonSave = cardEdit.element.querySelector(`.point__button--save`);
 
     cardEdit.disableView();
-    buttonSave.innerHTML = `Saving...`;
+    cardEdit.changeTextOnButtonSave(`Saving...`);
 
     localModel.updatePoints(dataCard)
       .then(() => {
         cardEdit.enableView();
-        buttonSave.innerHTML = `Save`;
+        cardEdit.changeTextOnButtonSave(`Save`);
         card.render();
         cardEdit.replace(card);
         cardEdit.unrender();
       })
       .catch(() => {
         cardEdit.enableView();
-        buttonSave.innerHTML = `Save`;
+        cardEdit.changeTextOnButtonSave(`Save`);
         cardEdit.showError();
       });
   });

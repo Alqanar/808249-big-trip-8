@@ -27,6 +27,8 @@ export default class CardEdit extends BaseComponent {
     this._onChangePrice = this._onChangePrice.bind(this);
     this._inputs = null;
     this._buttons = null;
+    this._buttonDelete = null;
+    this._buttonSave = null;
   }
 
   get template() {
@@ -35,6 +37,8 @@ export default class CardEdit extends BaseComponent {
 
   bind() {
     const time = this._data.time;
+    this._buttonDelete = this._element.querySelector(`.point__button--save + .point__button`);
+    this._buttonSave = this._element.querySelector(`.point__button--save`);
     this._element.querySelector(`.point form`).addEventListener(`submit`, this._onSubmit);
     this._element.querySelector(`.travel-way__select`).addEventListener(`change`, this._onSelectWay);
     this._element.querySelector(`.point__destination-input`).addEventListener(`change`, this._onChangeDestination);
@@ -169,5 +173,13 @@ export default class CardEdit extends BaseComponent {
     setTimeout(() => {
       this._element.style.animation = ``;
     }, ANIMATION_TIMEOUT);
+  }
+
+  changeTextOnButtonDelete(text) {
+    this._buttonDelete.innerHTML = text;
+  }
+
+  changeTextOnButtonSave(text) {
+    this._buttonSave.innerHTML = text;
   }
 }
