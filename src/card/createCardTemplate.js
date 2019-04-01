@@ -7,7 +7,10 @@ import {
 
 const createOffers = (specialsArray) => {
   let specials = ``;
-  for (let special of specialsArray) {
+  const checkedSpecials = specialsArray.filter((element) => {
+    return element.accepted;
+  });
+  for (let special of checkedSpecials) {
     specials +=
       `<li>
         <button class="trip-point__offer">${special.name} +&euro;&nbsp;${special.price}</button>

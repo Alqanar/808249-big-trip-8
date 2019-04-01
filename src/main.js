@@ -1,17 +1,6 @@
-// import {
-//   NamesFilterDict
-// } from './filters/namesFilterDict.js';
 import {
-  preparedData
-} from './data.js';
-import {
-  renderBoardCards,
-  setData
+  init
 } from './app.js';
 
 
-// renderFilters(NamesFilterDict);
-
-setData(preparedData);
-
-renderBoardCards();
+init({endPoint: `https://es8-demo-srv.appspot.com/big-trip`, authorization: `Basic 5rma8r57w60e007`});

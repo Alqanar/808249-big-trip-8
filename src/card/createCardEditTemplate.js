@@ -4,14 +4,6 @@ import {
   TYPES_MAP
 } from '../trip-types.js';
 
-const Destinations = [`Airport`,
-  `Geneva`,
-  `Chamonix`,
-  `hotel`,
-  `Gare Routière`,
-  `Mausolée Brunswick`,
-  `Scandale`
-];
 
 const createWays = (type, data) => {
   let moves = ``;
@@ -56,10 +48,10 @@ const renderCheckedWay = (type, dataType) =>
     ${renderWays(type, dataType)}
   </div>`;
 
-const createDestinaion = (destinations) => {
+const createDestination = (destinations) => {
   let destinationForSelect = ``;
-  for (let destination of destinations) {
-    destinationForSelect += `<option value="${destination}"></option>`;
+  for (let {name} of destinations) {
+    destinationForSelect += `<option value="${name}"></option>`;
   }
   return destinationForSelect;
 };
@@ -69,15 +61,16 @@ const renderDestination = (destinations, title, destination) =>
     <label class="point__destination-label" for="destination">${title}</label>
     <input class="point__destination-input" list="destination-select" id="destination" value="${destination}" name="destination">
     <datalist id="destination-select">
-      ${createDestinaion(destinations)}
+      ${createDestination(destinations)}
     </datalist>
   </div>`;
 
 const renderTime = (time) =>
-  `<label class="point__time">
+  `<div class="point__time">
     choose time
-    <input class="point__input" type="text" value="${moment(time.dateStart).format(`HH:mm`)} — ${moment(time.dateEnd).format(`HH:mm`)}" name="time" placeholder="00:00 — 00:00">
-  </label>`;
+    <input class="point__input" type="text" value="${moment(time.dateStart).format(`HH:mm`)}" name="date-start" placeholder="00:00">
+    <input class="point__input" type="text" value="${moment(time.dateEnd).format(`HH:mm`)}" name="date-end" placeholder="00:00">
+  </div>`;
 
 const renderPrice = (price) =>
   `<label class="point__price">
@@ -102,7 +95,7 @@ const createOffers = (specialsArray) => {
   let specials = ``;
   for (let special of specialsArray) {
     specials +=
-      `<input class="point__offers-input visually-hidden" type="checkbox" id="${special.name}" name="offer" value="${special.name}">
+      `<input class="point__offers-input visually-hidden" type="checkbox" id="${special.name}" name="offer" value="${special.name}" ${special.accepted ? `checked` : ``}>
       <label for="${special.name}" class="point__offers-label">
         <span class="point__offer-service">${special.name}</span> + €<span class="point__offer-price">${special.price}</span>
       </label>`;
@@ -118,18 +111,10 @@ const renderOffers = (specials) =>
     </div>
   </section>`;
 
-const createDescription = (texts) => {
-  let blockTexts = ``;
-  for (let line of texts) {
-    blockTexts += line + ` `;
-  }
-  return blockTexts;
-};
-
 const createLinks = (links) => {
   let blockLinks = ``;
   for (let link of links) {
-    blockLinks += `<img src="${link}" alt="picture from place" class="point__destination-image">`;
+    blockLinks += `<img src="${link.src}" alt="${link.value}" class="point__destination-image">`;
   }
   return blockLinks;
 };
@@ -137,14 +122,13 @@ const createLinks = (links) => {
 const renderPointDestination = (texts, links) =>
   `<section class="point__destination">
     <h3 class="point__details-title">Destination</h3>
-    <p class="point__destination-text">${createDescription(texts)}</p>
+    <p class="point__destination-text">${texts}</p>
     <div class="point__destination-images">
       ${createLinks(links)}
     </div>
   </section>`;
 
-
-export const getTemplate = (data) =>
+export const getTemplate = (data, destinations) =>
   `<article class="point">
     <form action="" method="get">
       <header class="point__header">
@@ -153,7 +137,7 @@ export const getTemplate = (data) =>
           <input class="point__input" type="text" placeholder="MAR 18" name="day">
         </label>
         ${renderCheckedWay(data.type, TYPES_MAP)}
-        ${renderDestination(Destinations, TYPES_MAP[data.type].title, data.destination)}
+        ${renderDestination(destinations, TYPES_MAP[data.type].title, data.destination)}
         ${renderTime(data.time)}
         ${renderPrice(data.price)}
         ${renderButtons()}
@@ -161,7 +145,7 @@ export const getTemplate = (data) =>
       </header>
       <section class="point__details">
         ${renderOffers(data.specials)}
-        ${renderPointDestination(data.text, data.src)}
+        ${renderPointDestination(data.text, data.pictures)}
         <input type="hidden" class="point__total-price" name="total-price" value="">
       </section>
     </form>

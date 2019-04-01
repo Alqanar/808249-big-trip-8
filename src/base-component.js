@@ -43,6 +43,12 @@ export default class BaseComponent {
     return this._element;
   }
 
+  reRender() {
+    const oldElement = this._element;
+    this.unbind();
+    this.container.replaceChild(this.render(), oldElement);
+  }
+
   unrender() {
     this.unbind();
     this._element = null;
