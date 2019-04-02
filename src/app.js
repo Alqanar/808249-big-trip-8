@@ -22,8 +22,8 @@ let activeLink = document.querySelector(`.view-switch__item--active`);
 let localModel;
 const statistic = new Statistic([]);
 
-export const init = (address) => {
-  localModel = new LocalModel(address);
+export const init = (apiParams, storeParams) => {
+  localModel = new LocalModel(apiParams, storeParams);
 
   containerCards.appendChild(loading);
 
@@ -150,4 +150,13 @@ containerElementFilter.addEventListener(`click`, (e) => {
     renderStatistic();
     statistic.changeStealthSwitch();
   }
+});
+
+window.addEventListener(`offline`, () => {
+  document.title = `[OFFLINE] ${document.title}`;
+});
+
+window.addEventListener(`online`, () => {
+  document.title = document.title.split(`[OFFLINE] `)[1];
+  localModel.syncTasks();
 });
