@@ -69,3 +69,12 @@ export const unblock = (inputs, buttons) => {
   changeStatusDisabled(inputs, false);
   changeStatusDisabled(buttons, false);
 };
+
+export const generateId = () => {
+  const id = Date.now() + Math.round(Math.random());
+  return id;
+};
+
+export const objectToArray = (object) => {
+  return Object.keys(object).map((id) => object[id]);
+};

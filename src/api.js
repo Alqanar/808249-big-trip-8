@@ -38,11 +38,11 @@ export default class API {
       .then(toJSON);
   }
 
-  createPoints({task}) {
+  createPoints(point) {
     return this._load({
       url: `points`,
       method: Method.POST,
-      body: JSON.stringify(task),
+      body: JSON.stringify(point),
       headers: new Headers({'Content-Type': `application/json`})
     })
       .then(toJSON);
@@ -70,5 +70,15 @@ export default class API {
         window[`console`].error(`fetch error: ${err}`);
         throw err;
       });
+  }
+
+  syncTasks(points) {
+    return this._load({
+      url: `points/sync`,
+      method: `POST`,
+      body: JSON.stringify(points),
+      headers: new Headers({'Content-Type': `application/json`})
+    })
+      .then(toJSON);
   }
 }
