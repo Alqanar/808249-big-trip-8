@@ -17,6 +17,10 @@ export default class LocalModel {
   }
 
   init() {
+    if (!this._isOnline()) {
+      document.title = `[OFFLINE] ${document.title}`;
+    }
+
     return Promise.all([
       this._fetchPoints(),
       this._fetchDestinations(),

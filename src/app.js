@@ -157,6 +157,6 @@ window.addEventListener(`offline`, () => {
 });
 
 window.addEventListener(`online`, () => {
-  document.title = document.title.split(`[OFFLINE] `)[1];
+  document.title = `Big Trip`;
   localModel.syncTasks();
 });
