@@ -48,7 +48,7 @@ export default class API {
       .then(toJSON);
   }
 
-  updatePoints({id, data}) {
+  updatePoint({id, data}) {
     return this._load({
       url: `points/${id}`,
       method: Method.PUT,

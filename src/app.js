@@ -100,7 +100,7 @@ const onClickCard = (card) => {
     cardEdit.disableView();
     cardEdit.changeTextOnButtonSave(`Saving...`);
 
-    localModel.updatePoints(dataCard)
+    localModel.updatePoint(dataCard)
       .then(() => {
         cardEdit.enableView();
         cardEdit.changeTextOnButtonSave(`Save`);
