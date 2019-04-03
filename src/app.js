@@ -100,7 +100,7 @@ const onClickCard = (card) => {
     cardEdit.disableView();
     cardEdit.changeTextOnButtonSave(`Saving...`);
 
-    localModel.updatePoints(dataCard)
+    localModel.updatePoint(dataCard)
       .then(() => {
         cardEdit.enableView();
         cardEdit.changeTextOnButtonSave(`Save`);
@@ -157,6 +157,6 @@ window.addEventListener(`offline`, () => {
 });
 
 window.addEventListener(`online`, () => {
-  document.title = document.title.split(`[OFFLINE] `)[1];
+  document.title = `Big Trip`;
   localModel.syncTasks();
 });

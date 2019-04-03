@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>Big Trip</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <link rel="stylesheet" type="text/css" media="screen" href="./css/flatpickr.min.css" />
   <link href="https://fonts.googleapis.com/css?family=Montserrat:500,600,700,800,900&amp;subset=cyrillic-ext"
     rel="stylesheet">
   <link rel="stylesheet" type="text/css" media="screen" href="./css/normalize.css" />
@@ -99,74 +99,20 @@
           <h2 class="trip-day__title">Mar 18</h2>
         </article>
 
-        <div class="trip-day__items">
-          <!-- <article class="trip-point">
-            <i class="trip-icon">🚕</i>
-            <h3 class="trip-point__title">Taxi to Airport</h3>
-            <p class="trip-point__schedule">
-              <span class="trip-point__timetable">10:00&nbsp;&mdash; 11:00</span>
-              <span class="trip-point__duration">1h 30m</span>
-            </p>
-            <p class="trip-point__price">&euro;&nbsp;20</p>
-            <ul class="trip-point__offers">
-              <li>
-                <button class="trip-point__offer">Order UBER +&euro;&nbsp;20</button>
-              </li>
-              <li>
-                <button class="trip-point__offer">Upgrade to business +&euro;&nbsp;20</button>
-              </li>
-            </ul>
-          </article>
-          <article class="trip-point">
-            <i class="trip-icon">✈️</i>
-            <h3 class="trip-point__title">Flight to Geneva</h3>
-            <p class="trip-point__schedule">
-              <span class="trip-point__timetable">10:00&nbsp;&mdash; 11:00</span>
-              <span class="trip-point__duration">1h 30m</span>
-            </p>
-            <p class="trip-point__price">&euro;&nbsp;20</p>
-            <ul class="trip-point__offers">
-              <li>
-                <button class="trip-point__offer">Upgrade to business +&euro;&nbsp;20</button>
-              </li>
-              <li>
-                <button class="trip-point__offer">Select meal +&euro;&nbsp;20</button>
-              </li>
-            </ul>
-          </article>
-          <article class="trip-point">
-            <i class="trip-icon">🚗</i>
-            <h3 class="trip-point__title">Drive to Chamonix</h3>
-            <p class="trip-point__schedule">
-              <span class="trip-point__timetable">10:00&nbsp;&mdash; 11:00</span>
-              <span class="trip-point__duration">1h 30m</span>
-            </p>
-            <p class="trip-point__price">&euro;&nbsp;20</p>
-            <ul class="trip-point__offers">
-              <li>
-                <button class="trip-point__offer">Rent a car +&euro;&nbsp;200</button>
-              </li>
-            </ul>
-          </article>
-          <article class="trip-point">
-            <i class="trip-icon">🏨</i>
-            <h3 class="trip-point__title">Check into a hotel</h3>
-            <p class="trip-point__schedule">
-              <span class="trip-point__timetable">10:00&nbsp;&mdash; 11:00</span>
-              <span class="trip-point__duration">1h 30m</span>
-            </p>
-            <p class="trip-point__price">&euro;&nbsp;20</p>
-            <ul class="trip-point__offers">
-              <li>
-                <button class="trip-point__offer">Add breakfast +&euro;&nbsp;20</button>
-              </li>
-            </ul>
-          </article> -->
-        </div>
+        <div class="trip-day__items"></div>
       </section>
     </section>
   </main>
   <script src="./bundle.js"></script>
+  <script>
+    navigator.serviceWorker.register('./sw.js')
+      .then(function (reg) {
+        console.log('Registration succeeded. Scope is ' + reg.scope);
+      })
+      .catch(function (error) {
+        console.log('Registration failed with ' + error);
+      });
+  </script>
 </body>
 
 </html>

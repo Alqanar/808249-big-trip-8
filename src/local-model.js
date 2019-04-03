@@ -17,6 +17,10 @@ export default class LocalModel {
   }
 
   init() {
+    if (!this._isOnline()) {
+      document.title = `[OFFLINE] ${document.title}`;
+    }
+
     return Promise.all([
       this._fetchPoints(),
       this._fetchDestinations(),
@@ -66,45 +70,62 @@ export default class LocalModel {
     return this._store.getOffers();
   }
 
-  deletePoint(id) {
+  _callAction(onlineAction, offlineAction) {
     if (this._isOnline()) {
-      return this._api.deletePoint(id)
-        .then(() => {
-          this._store.removePoint(id);
-        });
+      return onlineAction();
     } else {
+      offlineAction();
       this._needSync = true;
-      this._store.removePoint(id);
       return Promise.resolve(true);
     }
   }
 
-  updatePoints(newDataObj) {
-    if (this._isOnline()) {
-      return this._api.updatePoints({id: newDataObj.id, data: transformDataToServer(newDataObj)})
+  _deletePointOnline(id) {
+    return this._api.deletePoint(id)
+        .then(() => {
+          this._store.removePoint(id);
+        });
+  }
+
+  deletePoint(id) {
+    return this._callAction(
+        () => this._deletePointOnline(id),
+        () => this._storeremovePoint(id)
+    );
+  }
+
+  _updatePointOnline(newDataObj) {
+    return this._api.updatePoint({id: newDataObj.id, data: transformDataToServer(newDataObj)})
       .then((updateData) => {
         this._store.setPoint(updateData.id, updateData);
       });
-    } else {
-      const data = transformDataToServer(newDataObj);
-      this._needSync = true;
-      this._store.setPoint(data.id, data);
-      return Promise.resolve();
-    }
   }
 
-  createPoint(point) {
-    if (this._isOnline()) {
-      return this._api.createPoints(point)
+  updatePoint(newDataObj) {
+    return this._callAction(
+        () => this._updatePointOnline(newDataObj),
+        () => {
+          const data = transformDataToServer(newDataObj);
+          this._store.setPoint(data.id, data);
+        }
+    );
+  }
+
+  _createPointOnline(point) {
+    return this._api.createPoints(point)
         .then((createPoint) => {
           this._store.setPoint(createPoint.id, createPoint);
         });
-    } else {
-      point.id = generateId();
-      this._needSync = true;
-      this._store.setPoint(point.id, transformDataToServer(point));
-      return Promise.resolve();
-    }
+  }
+
+  createPoint(point) {
+    return this._callAction(
+        () => this._createPointOnline(point),
+        () => {
+          point.id = generateId();
+          this._store.setPoint(point.id, transformDataToServer(point));
+        }
+    );
   }
 
   _isOnline() {
