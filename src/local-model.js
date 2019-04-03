@@ -71,7 +71,7 @@ export default class LocalModel {
   }
 
   _callAction(onlineAction, offlineAction) {
-    if (this._isOnline) {
+    if (this._isOnline()) {
       return onlineAction();
     } else {
       offlineAction();
@@ -88,7 +88,7 @@ export default class LocalModel {
   }
 
   deletePoint(id) {
-    this._callAction(
+    return this._callAction(
         () => this._deletePointOnline(id),
         () => this._storeremovePoint(id)
     );
@@ -102,7 +102,7 @@ export default class LocalModel {
   }
 
   updatePoint(newDataObj) {
-    this._callAction(
+    return this._callAction(
         () => this._updatePointOnline(newDataObj),
         () => {
           const data = transformDataToServer(newDataObj);
@@ -119,7 +119,7 @@ export default class LocalModel {
   }
 
   createPoint(point) {
-    this._callAction(
+    return this._callAction(
         () => this._createPointOnline(point),
         () => {
           point.id = generateId();

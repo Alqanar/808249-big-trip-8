@@ -1,13 +1,13 @@
 export default class Store {
   constructor({
     pointsKey,
-    destonationsKey,
+    destinationsKey,
     offersKey,
     storage
   }) {
     this._storage = storage;
     this._pointsKey = pointsKey;
-    this._destonationsKey = destonationsKey;
+    this._destinationsKey = destinationsKey;
     this._offersKey = offersKey;
   }
 
@@ -24,12 +24,12 @@ export default class Store {
   }
 
   setDestinations(destinations) {
-    this._storage.setItem(this._destonationsKey, JSON.stringify(destinations));
+    this._storage.setItem(this._destinationsKey, JSON.stringify(destinations));
   }
 
   getDestinations() {
     const emptyItems = [];
-    const destinations = this._storage.getItem(this._destonationsKey);
+    const destinations = this._storage.getItem(this._destinationsKey);
 
     if (!destinations) {
       return emptyItems;

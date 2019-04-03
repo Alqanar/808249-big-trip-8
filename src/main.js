@@ -8,7 +8,7 @@ init({
   authorization: `Basic 5rma8r57w60e007`
 }, {
   pointsKey: `points-store-key`,
-  destonationsKey: `destinations-store-key`,
+  destinationsKey: `destinations-store-key`,
   offersKey: `offers-store-key`,
   storage: localStorage
 });
