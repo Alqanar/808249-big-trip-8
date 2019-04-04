@@ -3,6 +3,9 @@ import moment from 'moment';
 import {
   TYPES_MAP
 } from '../trip-types.js';
+import {
+  countSpecialPrice
+} from '../utils.js';
 
 
 const createOffers = (specialsArray) => {
@@ -33,6 +36,6 @@ export const getTemplate = (data) =>
       <span class="trip-point__timetable">${moment(data.time.dateStart).format(`HH:mm`)} — ${moment(data.time.dateEnd).format(`HH:mm`)}</span>
       <span class="trip-point__duration">${data.duration.hours}h ${data.duration.minutes}m</span>
     </p>
-    <p class="trip-point__price">&euro;&nbsp;${data.price}</p>
+    <p class="trip-point__price">&euro;&nbsp;${data.price + countSpecialPrice(data.specials)}</p>
     ${renderOffersTemplate(data.specials)}
   </article>`;

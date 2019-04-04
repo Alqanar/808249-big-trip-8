@@ -3,6 +3,9 @@ import moment from 'moment';
 import {
   TYPES_MAP
 } from '../trip-types.js';
+import {
+  countSpecialPrice
+} from '../utils.js';
 
 
 const createWays = (type, data) => {
@@ -72,11 +75,11 @@ const renderTime = (time) =>
     <input class="point__input" type="text" value="${moment(time.dateEnd).format(`HH:mm`)}" name="date-end" placeholder="00:00">
   </div>`;
 
-const renderPrice = (price) =>
+const renderPrice = (price, specialsArray) =>
   `<label class="point__price">
     write price
     <span class="point__price-currency">€</span>
-    <input class="point__input" type="text" value="${price}" name="price">
+    <input class="point__input" type="text" value="${price + countSpecialPrice(specialsArray)}" name="price">
   </label>`;
 
 const renderButtons = () =>
@@ -91,12 +94,15 @@ const renderFavorite = () =>
     <label class="point__favorite" for="favorite">favorite</label>
   </div>`;
 
+const changeOfferId = (name) =>
+  name.replace(/ /g, `_`);
+
 const createOffers = (specialsArray) => {
   let specials = ``;
   for (let special of specialsArray) {
     specials +=
-      `<input class="point__offers-input visually-hidden" type="checkbox" id="${special.name}" name="offer" value="${special.name}" ${special.accepted ? `checked` : ``}>
-      <label for="${special.name}" class="point__offers-label">
+      `<input class="point__offers-input visually-hidden" type="checkbox" id="${changeOfferId(special.name)}" name="offer" value="${special.name}" ${special.accepted ? `checked` : ``}>
+      <label for="${changeOfferId(special.name)}" class="point__offers-label">
         <span class="point__offer-service">${special.name}</span> + €<span class="point__offer-price">${special.price}</span>
       </label>`;
   }
@@ -139,7 +145,7 @@ export const getTemplate = (data, destinations) =>
         ${renderCheckedWay(data.type, TYPES_MAP)}
         ${renderDestination(destinations, TYPES_MAP[data.type].title, data.destination)}
         ${renderTime(data.time)}
-        ${renderPrice(data.price)}
+        ${renderPrice(data.price, data.specials)}
         ${renderButtons()}
         ${renderFavorite()}
       </header>

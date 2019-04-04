@@ -7,6 +7,16 @@ export const createElement = (html) => {
   return newElement.firstChild;
 };
 
+export const countSpecialPrice = (specialsArray) => {
+  let generalSpecialPrice = 0;
+  for (let special of specialsArray) {
+    if (special.accepted) {
+      generalSpecialPrice += special.price;
+    }
+  }
+  return generalSpecialPrice;
+};
+
 export const getDuration = ({dateStart, dateEnd}) => {
   dateStart = moment(dateStart);
   dateEnd = moment(dateEnd);
