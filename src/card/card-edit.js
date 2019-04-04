@@ -25,6 +25,7 @@ export default class CardEdit extends BaseComponent {
     this._onSelectWay = this._onSelectWay.bind(this);
     this._onChangeDestination = this._onChangeDestination.bind(this);
     this._onChangePrice = this._onChangePrice.bind(this);
+    this._onChangeOffers = this._onChangeOffers.bind(this);
     this._inputs = null;
     this._buttons = null;
     this._buttonDelete = null;
@@ -43,6 +44,7 @@ export default class CardEdit extends BaseComponent {
     this._element.querySelector(`.travel-way__select`).addEventListener(`change`, this._onSelectWay);
     this._element.querySelector(`.point__destination-input`).addEventListener(`change`, this._onChangeDestination);
     this._element.querySelector(`.point__price .point__input`).addEventListener(`change`, this._onChangePrice);
+    this._element.querySelector(`.point__offers-wrap`).addEventListener(`change`, this._onChangeOffers);
     this._element.querySelector(`.point__buttons [type="reset"]`).addEventListener(`click`, this._onDelete);
 
     this._startPicker = flatpickr(
@@ -100,31 +102,30 @@ export default class CardEdit extends BaseComponent {
     this._data.price = parseInt(event.target.value, 10);
   }
 
+  _onChangeOffers(event) {
+    const foundOffer = this._data.specials.find((element) => element.name === event.target.value);
+    if (foundOffer) {
+      foundOffer.accepted = event.target.checked;
+    }
+
+    this.reRender();
+  }
+
   unbind() {
     this._element.querySelector(`.point form`).removeEventListener(`submit`, this._onSubmit);
     this._element.querySelector(`.travel-way__select`).removeEventListener(`change`, this._onSelectWay);
     this._element.querySelector(`.point__destination-input`).removeEventListener(`change`, this._onChangeDestination);
     this._element.querySelector(`.point__price .point__input`).removeEventListener(`change`, this._onChangePrice);
+    this._element.querySelector(`.point__offers-wrap`).removeEventListener(`change`, this._onChangeOffers);
     this._element.querySelector(`.point__buttons [type="reset"]`).removeEventListener(`click`, this._onDelete);
     this._startPicker.destroy();
     this._endPicker.destroy();
-  }
-
-  _updateOffersAcceptedStatus() {
-    const offersInput = this._element.querySelectorAll(`.point__offers-input`);
-    for (let offer of offersInput) {
-      const foundInput = this._data.specials.find((element) => element.name === offer.id);
-      if (foundInput) {
-        foundInput.accepted = offer.checked;
-      }
-    }
   }
 
   _onSubmit(event) {
     event.preventDefault();
     if (this._submitHandler) {
       this._data.duration = getDuration(this._data.time);
-      this._updateOffersAcceptedStatus();
       this._submitHandler(this._data);
     }
   }
