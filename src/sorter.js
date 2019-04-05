@@ -28,7 +28,7 @@ export default class Sorter extends BaseComponent {
   }
 
   _sortingByTime(data) {
-    return data.sort((a, b) => getRawDuration(b.time).milliseconds() - getRawDuration(a.time).milliseconds());
+    return data.sort((a, b) => getRawDuration(b.time).asMilliseconds() - getRawDuration(a.time).asMilliseconds());
   }
 
   _sortingByPrice(data) {

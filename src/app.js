@@ -113,9 +113,8 @@ const onClickCard = (card) => {
       .then(() => {
         cardEdit.enableView();
         cardEdit.changeTextOnButtonSave(`Save`);
-        card.render();
-        cardEdit.replace(card);
         cardEdit.unrender();
+        renderWithSorting();
       })
       .catch(() => {
         cardEdit.enableView();

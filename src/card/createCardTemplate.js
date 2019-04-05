@@ -4,7 +4,8 @@ import {
   TYPES_MAP
 } from '../trip-types.js';
 import {
-  countSpecialPrice
+  countSpecialPrice,
+  addZero
 } from '../utils.js';
 
 
@@ -27,6 +28,15 @@ const renderOffersTemplate = (specials) =>
     ${createOffers(specials)}
   </ul>`;
 
+const showDuration = (duration) => {
+  if (!(duration.days || duration.hours)) {
+    return `${addZero(duration.minutes)}M`;
+  } else if (!duration.days) {
+    return `${addZero(duration.hours)}H ${addZero(duration.minutes)}M`;
+  }
+  return `${addZero(duration.days)}D ${addZero(duration.hours)}H ${addZero(duration.minutes)}M`;
+};
+
 
 export const getTemplate = (data) =>
   `<article class="trip-point">
@@ -34,7 +44,7 @@ export const getTemplate = (data) =>
     <h3 class="trip-point__title">${TYPES_MAP[data.type].title} ${data.destination}</h3>
     <p class="trip-point__schedule">
       <span class="trip-point__timetable">${moment(data.time.dateStart).format(`HH:mm`)} — ${moment(data.time.dateEnd).format(`HH:mm`)}</span>
-      <span class="trip-point__duration">${data.duration.hours}h ${data.duration.minutes}m</span>
+      <span class="trip-point__duration">${showDuration(data.duration)}</span>
     </p>
     <p class="trip-point__price">&euro;&nbsp;${data.price + countSpecialPrice(data.specials)}</p>
     ${renderOffersTemplate(data.specials)}
