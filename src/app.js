@@ -3,6 +3,7 @@ import CardEdit from './card/card-edit.js';
 import Filters from './filters/filters.js';
 import Statistic from './statistic/statistic.js';
 import LocalModel from './local-model.js';
+import Sorter from './sorter.js';
 
 import {
   createElement
@@ -21,11 +22,15 @@ let activeLink = document.querySelector(`.view-switch__item--active`);
 
 let localModel;
 const statistic = new Statistic([]);
+const sorter = new Sorter();
+sorter.setElement(main.querySelector(`.trip-sorting`));
+
 
 export const init = (apiParams, storeParams) => {
   localModel = new LocalModel(apiParams, storeParams);
 
   containerCards.appendChild(loading);
+  sorter.setOnchangeSort(renderWithSorting);
 
   localModel.init()
     .then(() => {
@@ -38,6 +43,10 @@ export const init = (apiParams, storeParams) => {
       containerCards.removeChild(loading);
       containerCards.appendChild(error);
     });
+};
+
+const renderWithSorting = () => {
+  renderBoardCards(sorter.sort(localModel.getSavedData()));
 };
 
 const onChangeFilter = (filtersId) => {
@@ -118,7 +127,7 @@ const onClickCard = (card) => {
   card.unrender();
 };
 
-export const renderBoardCards = (data = localModel.getSavedData()) => {
+const renderBoardCards = (data = localModel.getSavedData()) => {
   containerCards.innerHTML = ``;
   const fragment = document.createDocumentFragment();
   for (let element of data) {

@@ -17,10 +17,14 @@ export const countSpecialPrice = (specialsArray) => {
   return generalSpecialPrice;
 };
 
-export const getDuration = ({dateStart, dateEnd}) => {
-  dateStart = moment(dateStart);
-  dateEnd = moment(dateEnd);
-  const duration = moment.duration(dateEnd.diff(dateStart));
+export const getRawDuration = ({dateStart, dateEnd}) => {
+  const timeStart = moment(dateStart);
+  const timeEnd = moment(dateEnd);
+  return moment.duration(timeEnd.diff(timeStart));
+};
+
+export const getDuration = (time) => {
+  const duration = getRawDuration(time);
   const hours = duration.hours();
   const minutes = duration.minutes();
   return {
