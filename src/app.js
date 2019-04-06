@@ -14,11 +14,13 @@ import {
 } from './filters/namesFilterDict.js';
 
 const MESSAGE_STYLE = `style="width: 100%; text-align: center;"`;
+const ESC_KEYCODE = 27;
 const main = document.querySelector(`.main`);
 const containerElementFilter = document.querySelector(`.trip-controls__menus.view-switch`);
 const containerCards = document.querySelector(`.trip-day__items`);
 const loading = createElement(`<p ${MESSAGE_STYLE}>Loading route...</p>`);
 const error = createElement(`<p ${MESSAGE_STYLE}>Something went wrong while loading your route info. Check your connection or try again later</p>`);
+let openedCards = [];
 let activeLink = document.querySelector(`.view-switch__item--active`);
 
 let localModel;
@@ -50,7 +52,9 @@ export const init = (apiParams, storeParams) => {
 };
 
 const renderWithConditions = () => {
-  renderBoardCards(filter.filterOut(sorter.sort(localModel.getSavedData())));
+  if (!openedCards.length) {
+    renderBoardCards(filter.filterOut(sorter.sort(localModel.getSavedData())));
+  }
 };
 
 const renderFilters = (filterData) => {
@@ -75,6 +79,7 @@ const deleteCard = (cardEditInstance) => {
     .then(() => {
       cardEditInstance.enableView();
       cardEditInstance.changeTextOnButtonDelete(`Delete`);
+      openedCards = openedCards.filter(({cardEdit}) => cardEdit.id !== cardEditInstance.id);
       cardEditInstance.destroy();
       totalCost.render(localModel.getSavedData());
     })
@@ -85,9 +90,14 @@ const deleteCard = (cardEditInstance) => {
     });
 };
 
+// const closeOpenedCard = (cardEditInstance) => {
+//   cardEditInstance.destroy();
+// };
+
 const onClickCard = (card) => {
   const cardEdit = new CardEdit(card.data, localModel.getSavedDestinations(), localModel.getSavedOffers());
   cardEdit.render();
+  openedCards.push({cardEdit, card});
   card.replace(cardEdit);
   cardEdit.setOnSubmit((dataCard) => {
     card.saveChanges(dataCard);
@@ -99,6 +109,9 @@ const onClickCard = (card) => {
       .then(() => {
         cardEdit.enableView();
         cardEdit.changeTextOnButtonSave(`Save`);
+        openedCards = openedCards.filter(({cardEdit: elem}) => elem.id !== dataCard.id);
+        card.render();
+        cardEdit.replace(card);
         cardEdit.unrender();
         renderWithConditions();
       })
@@ -108,6 +121,7 @@ const onClickCard = (card) => {
         cardEdit.showError();
       });
   });
+  // cardEdit.setEcsPress(closeOpenedCard);
   cardEdit.setOnDelete(deleteCard);
   card.unrender();
 };
@@ -154,4 +168,13 @@ window.addEventListener(`offline`, () => {
 window.addEventListener(`online`, () => {
   document.title = `Big Trip`;
   localModel.syncTasks();
+});
+
+document.addEventListener(`keydown`, (event) => {
+  if (event.keyCode === ESC_KEYCODE) {
+    const lastPair = openedCards.pop();
+    lastPair.card.render();
+    lastPair.cardEdit.replace(lastPair.card);
+    lastPair.cardEdit.unrender();
+  }
 });

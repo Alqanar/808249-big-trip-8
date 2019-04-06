@@ -20,6 +20,7 @@ export default class CardEdit extends BaseComponent {
     this._offers = offers;
     this._submitHandler = null;
     this._deleteHandler = null;
+    this._escPressHandler = null;
     this._onSubmit = this._onSubmit.bind(this);
     this._onDelete = this._onDelete.bind(this);
     this._onSelectWay = this._onSelectWay.bind(this);
