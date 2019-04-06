@@ -22,6 +22,7 @@ const error = createElement(`<p ${MESSAGE_STYLE}>Something went wrong while load
 let activeLink = document.querySelector(`.view-switch__item--active`);
 
 let localModel;
+let filter;
 const statistic = new Statistic([]);
 const sorter = new Sorter();
 sorter.setElement(main.querySelector(`.trip-sorting`));
@@ -33,7 +34,7 @@ export const init = (apiParams, storeParams) => {
   localModel = new LocalModel(apiParams, storeParams);
 
   containerCards.appendChild(loading);
-  sorter.setOnchangeSort(renderWithSorting);
+  sorter.setOnchangeSort(renderWithConditions);
 
   localModel.init()
     .then(() => {
@@ -48,38 +49,19 @@ export const init = (apiParams, storeParams) => {
     });
 };
 
-const renderWithSorting = () => {
-  renderBoardCards(sorter.sort(localModel.getSavedData()));
-};
-
-const onChangeFilter = (filtersId) => {
-  let dataToRender = [];
-  const dateNow = new Date().getTime();
-  switch (filtersId) {
-    case `filter-everything`:
-      dataToRender = localModel.getSavedData();
-      break;
-
-    case `filter-future`:
-      dataToRender = localModel.getSavedData().filter(({time: {dateStart}}) => dateStart.getTime() > dateNow);
-      break;
-
-    case `filter-past`:
-      dataToRender = localModel.getSavedData().filter(({time: {dateEnd}}) => dateEnd.getTime() < dateNow);
-      break;
-  }
-  renderBoardCards(dataToRender);
+const renderWithConditions = () => {
+  renderBoardCards(filter.filterOut(sorter.sort(localModel.getSavedData())));
 };
 
 const renderFilters = (filterData) => {
-  const filter = new Filters(filterData);
+  filter = new Filters(filterData);
   const formFilter = containerElementFilter.querySelector(`.trip-filter`);
   if (formFilter) {
     containerElementFilter.removeChild(formFilter);
   }
   containerElementFilter.appendChild(filter.render());
 
-  filter.setOnChangeFilter(onChangeFilter);
+  filter.setOnChangeFilter(renderWithConditions);
 };
 
 renderFilters(NamesFilterDict);
@@ -118,7 +100,7 @@ const onClickCard = (card) => {
         cardEdit.enableView();
         cardEdit.changeTextOnButtonSave(`Save`);
         cardEdit.unrender();
-        renderWithSorting();
+        renderWithConditions();
       })
       .catch(() => {
         cardEdit.enableView();
