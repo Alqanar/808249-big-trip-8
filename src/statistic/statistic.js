@@ -10,6 +10,10 @@ import {
 import {
   TYPES_MAP
 } from '../trip-types.js';
+import {
+  countSpecialPrice,
+  getRawDuration
+} from '../utils.js';
 
 const BAR_HEIGHT = 55;
 
@@ -38,7 +42,7 @@ export default class Statistic extends BaseComponent {
     let moneySummary = {};
     for (let elementData of this._data) {
       const label = getLabel(moneySummary, elementData);
-      moneySummary[label] += elementData.price;
+      moneySummary[label] += elementData.price + countSpecialPrice(elementData.specials);
     }
     return moneySummary;
   }
@@ -52,6 +56,15 @@ export default class Statistic extends BaseComponent {
       }
     }
     return useOfTransport;
+  }
+
+  _getDurationOfTypePoint() {
+    let durationOfTypePoint = {};
+    for (let elementData of this._data) {
+      const label = getLabel(durationOfTypePoint, elementData);
+      durationOfTypePoint[label] += Math.round(getRawDuration(elementData.time).asHours());
+    }
+    return durationOfTypePoint;
   }
 
   _drawGraph(domElement, methodForCreationData, title, format) {
@@ -132,5 +145,6 @@ export default class Statistic extends BaseComponent {
     this._data = dataForGraph;
     this._drawGraph(this.element.querySelector(`.statistic__money`), this._getMoneySummary(), `MONEY`, (val) => `€ ${val}`);
     this._drawGraph(this.element.querySelector(`.statistic__transport`), this._getUseOfTransport(), `TRANSPORT`, (val) => `${val}x`);
+    this._drawGraph(this.element.querySelector(`.statistic__time-spend`), this._getDurationOfTypePoint(), `TIME SPENT`, (val) => `${val}H`);
   }
 }
