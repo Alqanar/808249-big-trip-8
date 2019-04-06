@@ -4,6 +4,7 @@ import Filters from './filters/filters.js';
 import Statistic from './statistic/statistic.js';
 import LocalModel from './local-model.js';
 import Sorter from './sorter.js';
+import TotalCost from './total-cost.js';
 
 import {
   createElement
@@ -24,6 +25,8 @@ let localModel;
 const statistic = new Statistic([]);
 const sorter = new Sorter();
 sorter.setElement(main.querySelector(`.trip-sorting`));
+const totalCost = new TotalCost();
+totalCost.setElement(document.querySelector(`.trip__total-cost`));
 
 
 export const init = (apiParams, storeParams) => {
@@ -91,6 +94,7 @@ const deleteCard = (cardEditInstance) => {
       cardEditInstance.enableView();
       cardEditInstance.changeTextOnButtonDelete(`Delete`);
       cardEditInstance.destroy();
+      totalCost.render(localModel.getSavedData());
     })
     .catch(() => {
       cardEditInstance.enableView();
@@ -135,6 +139,7 @@ const renderBoardCards = (data = localModel.getSavedData()) => {
     fragment.appendChild(card.render());
   }
   containerCards.appendChild(fragment);
+  totalCost.render(data);
 };
 
 const renderStatistic = () => {
