@@ -28,6 +28,9 @@ self.addEventListener(`fetch`, (event) => {
 });
 
 const refreshCache = async (request, response) => {
-  const cache = await caches.open(`STATIC_V1.0`);
-  return cache.put(request, response.clone());
+  if (request.method !== `PUT`) {
+    const cache = await caches.open(`STATIC_V1.0`);
+    return cache.put(request, response.clone());
+  }
+  return Promise.resolve();
 };

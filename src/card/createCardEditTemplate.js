@@ -88,32 +88,32 @@ const renderButtons = () =>
     <button class="point__button" type="reset">Delete</button>
   </div>`;
 
-const renderFavorite = () =>
+const renderFavorite = (favorite, id) =>
   `<div class="paint__favorite-wrap">
-    <input type="checkbox" class="point__favorite-input visually-hidden" id="favorite" name="favorite">
-    <label class="point__favorite" for="favorite">favorite</label>
+    <input type="checkbox" class="point__favorite-input visually-hidden" id="favorite_${id}" name="favorite" ${favorite ? `checked` : ``}>
+    <label class="point__favorite" for="favorite_${id}">favorite</label>
   </div>`;
 
 const changeOfferId = (name) =>
   name.replace(/ /g, `_`);
 
-const createOffers = (specialsArray) => {
+const createOffers = (specialsArray, id) => {
   let specials = ``;
   for (let special of specialsArray) {
     specials +=
-      `<input class="point__offers-input visually-hidden" type="checkbox" id="${changeOfferId(special.name)}" name="offer" value="${special.name}" ${special.accepted ? `checked` : ``}>
-      <label for="${changeOfferId(special.name)}" class="point__offers-label">
+      `<input class="point__offers-input visually-hidden" type="checkbox" id="${changeOfferId(special.name)}_${id}" name="offer" value="${special.name}" ${special.accepted ? `checked` : ``}>
+      <label for="${changeOfferId(special.name)}_${id}" class="point__offers-label">
         <span class="point__offer-service">${special.name}</span> + €<span class="point__offer-price">${special.price}</span>
       </label>`;
   }
   return specials;
 };
 
-const renderOffers = (specials) =>
+const renderOffers = (specials, id) =>
   `<section class="point__offers">
     <h3 class="point__details-title">offers</h3>
     <div class="point__offers-wrap">
-      ${createOffers(specials)}
+      ${createOffers(specials, id)}
     </div>
   </section>`;
 
@@ -147,10 +147,10 @@ export const getTemplate = (data, destinations) =>
         ${renderTime(data.time)}
         ${renderPrice(data.price, data.specials)}
         ${renderButtons()}
-        ${renderFavorite()}
+        ${renderFavorite(data.favorite, data.id)}
       </header>
       <section class="point__details">
-        ${renderOffers(data.specials)}
+        ${renderOffers(data.specials, data.id)}
         ${renderPointDestination(data.text, data.pictures)}
         <input type="hidden" class="point__total-price" name="total-price" value="">
       </section>

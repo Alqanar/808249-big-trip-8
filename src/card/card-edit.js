@@ -26,6 +26,7 @@ export default class CardEdit extends BaseComponent {
     this._onChangeDestination = this._onChangeDestination.bind(this);
     this._onChangePrice = this._onChangePrice.bind(this);
     this._onChangeOffers = this._onChangeOffers.bind(this);
+    this._onChangeFavorite = this._onChangeFavorite.bind(this);
     this._inputs = null;
     this._buttons = null;
     this._buttonDelete = null;
@@ -45,6 +46,7 @@ export default class CardEdit extends BaseComponent {
     this._element.querySelector(`.point__destination-input`).addEventListener(`change`, this._onChangeDestination);
     this._element.querySelector(`.point__price .point__input`).addEventListener(`change`, this._onChangePrice);
     this._element.querySelector(`.point__offers-wrap`).addEventListener(`change`, this._onChangeOffers);
+    this._element.querySelector(`.point__favorite-input`).addEventListener(`change`, this._onChangeFavorite);
     this._element.querySelector(`.point__buttons [type="reset"]`).addEventListener(`click`, this._onDelete);
 
     this._startPicker = flatpickr(
@@ -111,12 +113,17 @@ export default class CardEdit extends BaseComponent {
     this.reRender();
   }
 
+  _onChangeFavorite(event) {
+    this._data.favorite = event.target.checked;
+  }
+
   unbind() {
     this._element.querySelector(`.point form`).removeEventListener(`submit`, this._onSubmit);
     this._element.querySelector(`.travel-way__select`).removeEventListener(`change`, this._onSelectWay);
     this._element.querySelector(`.point__destination-input`).removeEventListener(`change`, this._onChangeDestination);
     this._element.querySelector(`.point__price .point__input`).removeEventListener(`change`, this._onChangePrice);
     this._element.querySelector(`.point__offers-wrap`).removeEventListener(`change`, this._onChangeOffers);
+    this._element.querySelector(`.point__favorite-input`).addEventListener(`change`, this._onChangeFavorite);
     this._element.querySelector(`.point__buttons [type="reset"]`).removeEventListener(`click`, this._onDelete);
     this._startPicker.destroy();
     this._endPicker.destroy();
