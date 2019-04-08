@@ -43,6 +43,10 @@ export default class Store {
     }
   }
 
+  clearPoints() {
+    this._storage.setItem(this._pointsKey, `{}`);
+  }
+
   setOffers(offers) {
     this._storage.setItem(this._offersKey, JSON.stringify(offers));
   }

@@ -103,6 +103,7 @@ export default class CardEdit extends BaseComponent {
 
   _onChangePrice(event) {
     this._data.price = parseInt(event.target.value, 10);
+    this.reRender();
   }
 
   _onChangeOffers(event) {

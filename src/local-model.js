@@ -35,6 +35,7 @@ export default class LocalModel {
     if (this._isOnline()) {
       return this._api.getPoints()
         .then((points) => {
+          this._store.clearPoints();
           points.map((element) => this._store.setPoint(element.id, element));
         });
     }
@@ -165,7 +166,7 @@ export default class LocalModel {
       'specials': this._getOffersForNewEvent(),
       'text': ``,
       'pictures': [],
-      'favorite': `false`
+      'favorite': false
     };
   }
 }
