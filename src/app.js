@@ -72,6 +72,14 @@ const renderFilters = (filterData) => {
 
 renderFilters(NamesFilterDict);
 
+const changeStatusDisabledButton = () => {
+  const inputs = containerElementFilter.querySelectorAll(`input`);
+  const status = !!openedCards.length;
+  for (let input of inputs) {
+    input.disabled = status;
+  }
+  sorter.changDisabled(status);
+};
 
 const deleteCard = (cardEditInstance) => {
   cardEditInstance.disableView();
@@ -82,6 +90,7 @@ const deleteCard = (cardEditInstance) => {
       cardEditInstance.enableView();
       cardEditInstance.changeTextOnButtonDelete(`Delete`);
       openedCards = openedCards.filter(({cardEdit}) => cardEdit.id !== cardEditInstance.id);
+      changeStatusDisabledButton();
       cardEditInstance.destroy();
       totalCost.render(localModel.getSavedData());
     })
@@ -106,6 +115,7 @@ const getOnSubmitHandler = (card, cardEdit, method) => (dataCard) => {
       cardEdit.enableView();
       cardEdit.changeTextOnButtonSave(`Save`);
       openedCards = openedCards.filter(({cardEdit: elem}) => elem.id !== dataCard.id);
+      changeStatusDisabledButton();
       if (!point) {
         point = new Card(dataCard);
       }
@@ -126,6 +136,7 @@ const onClickCard = (card) => {
   const cardEdit = new CardEdit(card.data, localModel.getSavedDestinations(), localModel.getSavedOffers());
   cardEdit.render();
   openedCards.push({cardEdit, card});
+  changeStatusDisabledButton();
   card.replace(cardEdit);
 
   cardEdit.setOnSubmit(getOnSubmitHandler(card, cardEdit, `updatePoint`));
@@ -181,6 +192,7 @@ window.addEventListener(`online`, () => {
 document.addEventListener(`keydown`, (event) => {
   if (event.keyCode === ESC_KEYCODE) {
     const lastPair = openedCards.pop();
+    changeStatusDisabledButton();
     if (!lastPair.card) {
       lastPair.cardEdit.destroy();
       buttonforNewEvent.disabled = false;
@@ -198,6 +210,7 @@ buttonforNewEvent.addEventListener(`click`, () => {
   const cardEdit = new CardEdit(dataForNewEvent, localModel.getSavedDestinations(), localModel.getSavedOffers());
   containerCards.insertBefore(cardEdit.render(), containerCards.firstChild);
   openedCards.push({cardEdit, card: undefined});
+  changeStatusDisabledButton();
 
   cardEdit.setOnSubmit(getOnSubmitHandler(undefined, cardEdit, `createPoint`));
 

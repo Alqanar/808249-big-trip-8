@@ -58,6 +58,13 @@ export default class Sorter extends BaseComponent {
     }
   }
 
+  changDisabled(status) {
+    const inputs = this._element.querySelectorAll(`input`);
+    for (let input of inputs) {
+      input.disabled = status;
+    }
+  }
+
   unbind() {
     this._element.querySelector(`.trip-sorting`).removeEventListener(`change`, this._onChangeSort);
   }
