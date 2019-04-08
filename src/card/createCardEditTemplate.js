@@ -62,7 +62,7 @@ const createDestination = (destinations) => {
 const renderDestination = (destinations, title, destination) =>
   `<div class="point__destination-wrap">
     <label class="point__destination-label" for="destination">${title}</label>
-    <input class="point__destination-input" list="destination-select" id="destination" value="${destination}" name="destination">
+    <input class="point__destination-input" list="destination-select" id="destination" value="${destination}" name="destination" required>
     <datalist id="destination-select">
       ${createDestination(destinations)}
     </datalist>
@@ -71,15 +71,15 @@ const renderDestination = (destinations, title, destination) =>
 const renderTime = (time) =>
   `<div class="point__time">
     choose time
-    <input class="point__input" type="text" value="${moment(time.dateStart).format(`HH:mm`)}" name="date-start" placeholder="00:00">
-    <input class="point__input" type="text" value="${moment(time.dateEnd).format(`HH:mm`)}" name="date-end" placeholder="00:00">
+    <input class="point__input" type="text" value="${moment(time.dateStart).format(`HH:mm`)}" name="date-start" placeholder="00:00" required>
+    <input class="point__input" type="text" value="${moment(time.dateEnd).format(`HH:mm`)}" name="date-end" placeholder="00:00" required>
   </div>`;
 
 const renderPrice = (price, specialsArray) =>
   `<label class="point__price">
     write price
     <span class="point__price-currency">€</span>
-    <input class="point__input" type="text" value="${price + countSpecialPrice(specialsArray)}" name="price">
+    <input class="point__input" type="text" value="${price + countSpecialPrice(specialsArray)}" name="price" required>
   </label>`;
 
 const renderButtons = () =>

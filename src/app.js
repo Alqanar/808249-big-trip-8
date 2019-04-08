@@ -15,6 +15,7 @@ import {
 
 const MESSAGE_STYLE = `style="width: 100%; text-align: center;"`;
 const ESC_KEYCODE = 27;
+const buttonforNewEvent = document.querySelector(`.trip-controls__new-event`);
 const main = document.querySelector(`.main`);
 const containerElementFilter = document.querySelector(`.trip-controls__menus.view-switch`);
 const containerCards = document.querySelector(`.trip-day__items`);
@@ -50,6 +51,7 @@ export const init = (apiParams, storeParams) => {
       containerCards.appendChild(error);
     });
 };
+
 
 const renderWithConditions = () => {
   if (!openedCards.length) {
@@ -90,38 +92,44 @@ const deleteCard = (cardEditInstance) => {
     });
 };
 
-// const closeOpenedCard = (cardEditInstance) => {
-//   cardEditInstance.destroy();
-// };
+const getOnSubmitHandler = (card, cardEdit, method) => (dataCard) => {
+  let point = card;
+  if (point) {
+    point.saveChanges(dataCard);
+  }
+  delete dataCard.isNewCard;
+  cardEdit.disableView();
+  cardEdit.changeTextOnButtonSave(`Saving...`);
+
+  localModel[method](dataCard)
+    .then(() => {
+      cardEdit.enableView();
+      cardEdit.changeTextOnButtonSave(`Save`);
+      openedCards = openedCards.filter(({cardEdit: elem}) => elem.id !== dataCard.id);
+      if (!point) {
+        point = new Card(dataCard);
+      }
+      point.render();
+      cardEdit.replace(point);
+      cardEdit.unrender();
+      buttonforNewEvent.disabled = false;
+      renderWithConditions();
+    })
+    .catch(() => {
+      cardEdit.enableView();
+      cardEdit.changeTextOnButtonSave(`Save`);
+      cardEdit.showError();
+    });
+};
 
 const onClickCard = (card) => {
   const cardEdit = new CardEdit(card.data, localModel.getSavedDestinations(), localModel.getSavedOffers());
   cardEdit.render();
   openedCards.push({cardEdit, card});
   card.replace(cardEdit);
-  cardEdit.setOnSubmit((dataCard) => {
-    card.saveChanges(dataCard);
 
-    cardEdit.disableView();
-    cardEdit.changeTextOnButtonSave(`Saving...`);
+  cardEdit.setOnSubmit(getOnSubmitHandler(card, cardEdit, `updatePoint`));
 
-    localModel.updatePoint(dataCard)
-      .then(() => {
-        cardEdit.enableView();
-        cardEdit.changeTextOnButtonSave(`Save`);
-        openedCards = openedCards.filter(({cardEdit: elem}) => elem.id !== dataCard.id);
-        card.render();
-        cardEdit.replace(card);
-        cardEdit.unrender();
-        renderWithConditions();
-      })
-      .catch(() => {
-        cardEdit.enableView();
-        cardEdit.changeTextOnButtonSave(`Save`);
-        cardEdit.showError();
-      });
-  });
-  // cardEdit.setEcsPress(closeOpenedCard);
   cardEdit.setOnDelete(deleteCard);
   card.unrender();
 };
@@ -173,8 +181,30 @@ window.addEventListener(`online`, () => {
 document.addEventListener(`keydown`, (event) => {
   if (event.keyCode === ESC_KEYCODE) {
     const lastPair = openedCards.pop();
-    lastPair.card.render();
-    lastPair.cardEdit.replace(lastPair.card);
-    lastPair.cardEdit.unrender();
+    if (!lastPair.card) {
+      lastPair.cardEdit.destroy();
+      buttonforNewEvent.disabled = false;
+    } else {
+      lastPair.card.render();
+      lastPair.cardEdit.replace(lastPair.card);
+      lastPair.cardEdit.unrender();
+    }
   }
+});
+
+buttonforNewEvent.addEventListener(`click`, () => {
+  buttonforNewEvent.disabled = true;
+  const dataForNewEvent = localModel.getDataForNewEvent();
+  const cardEdit = new CardEdit(dataForNewEvent, localModel.getSavedDestinations(), localModel.getSavedOffers());
+  containerCards.insertBefore(cardEdit.render(), containerCards.firstChild);
+  openedCards.push({cardEdit, card: undefined});
+
+  cardEdit.setOnSubmit(getOnSubmitHandler(undefined, cardEdit, `createPoint`));
+
+  cardEdit.setOnDelete(() => {
+    cardEdit.disableView();
+    cardEdit.changeTextOnButtonDelete(`Deleting...`);
+    cardEdit.destroy();
+    buttonforNewEvent.disabled = false;
+  });
 });

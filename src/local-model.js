@@ -1,10 +1,13 @@
+import moment from 'moment';
+
 import API from './api.js';
 import Store from './store.js';
 import {
   transformDataToCard,
   transformDataToServer,
   generateId,
-  objectToArray
+  objectToArray,
+  getDuration
 } from './utils.js';
 
 
@@ -90,7 +93,7 @@ export default class LocalModel {
   deletePoint(id) {
     return this._callAction(
         () => this._deletePointOnline(id),
-        () => this._storeremovePoint(id)
+        () => this._store.removePoint(id)
     );
   }
 
@@ -112,7 +115,7 @@ export default class LocalModel {
   }
 
   _createPointOnline(point) {
-    return this._api.createPoints(point)
+    return this._api.createPoints(transformDataToServer(point))
         .then((createPoint) => {
           this._store.setPoint(createPoint.id, createPoint);
         });
@@ -140,5 +143,29 @@ export default class LocalModel {
         });
     }
     return Promise.resolve();
+  }
+
+  _getOffersForNewEvent() {
+    const typeOfNewEvent = `taxi`;
+    const offersForNewEvent = this.getSavedOffers().find((element) => element.type === typeOfNewEvent);
+    return (offersForNewEvent) ? offersForNewEvent.offers : [];
+  }
+
+  getDataForNewEvent() {
+    const time = {};
+    time.dateStart = new Date(moment().startOf(`day`).valueOf());
+    time.dateEnd = new Date(moment().startOf(`day`).valueOf());
+    return {'id': generateId(),
+      'isNewCard': true,
+      'type': `taxi`,
+      'destination': ``,
+      'time': time,
+      'duration': getDuration(time),
+      'price': 0,
+      'specials': this._getOffersForNewEvent(),
+      'text': ``,
+      'pictures': [],
+      'favorite': `false`
+    };
   }
 }
