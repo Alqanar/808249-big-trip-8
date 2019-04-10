@@ -12,9 +12,9 @@ const createFilterTemplate = (filter) =>
 
 const crateFiltersTemplate = (arrayFilters) => {
   let filtersContainer = ``;
-  for (let elementFilter of arrayFilters) {
+  arrayFilters.forEach((elementFilter) => {
     filtersContainer += createFilterTemplate(elementFilter);
-  }
+  });
   return filtersContainer;
 };
 

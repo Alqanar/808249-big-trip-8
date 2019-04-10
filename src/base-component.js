@@ -13,44 +13,44 @@ export default class BaseComponent {
     this._element = null;
   }
 
-  get template() {
-    throw new Error(`You have to define template.`);
+  get container() {
+    return this._element.parentNode;
   }
 
   get element() {
     return this._element;
   }
 
-  get container() {
-    return this._element.parentNode;
-  }
-
   get id() {
     return this._data.id;
+  }
+
+  get template() {
+    throw new Error(`You have to define template.`);
+  }
+
+  render() {
+    this._element = createElement(this.template);
+    this._bind();
+    return this._element;
   }
 
   replace(instance) {
     this.container.replaceChild(instance.element, this.element);
   }
 
-  bind() {}
-
-  unbind() {}
-
-  render() {
-    this._element = createElement(this.template);
-    this.bind();
-    return this._element;
-  }
-
   reRender() {
     const oldElement = this._element;
-    this.unbind();
+    this._unBind();
     this.container.replaceChild(this.render(), oldElement);
   }
 
-  unrender() {
-    this.unbind();
+  unRender() {
+    this._unBind();
     this._element = null;
   }
+
+  _bind() {}
+
+  _unBind() {}
 }

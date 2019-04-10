@@ -10,12 +10,12 @@ export default class TotalCost extends BaseComponent {
     this._element = domElement;
   }
 
+  render(data) {
+    this._element.innerHTML = `&euro;&nbsp;${this._countTotalCost(data)}`;
+  }
+
   _countTotalCost(data) {
     return data.reduce((sum, {price, specials}) =>
       sum + price + countSpecialPrice(specials), 0);
-  }
-
-  render(data) {
-    this._element.innerHTML = `&euro;&nbsp;${this._countTotalCost(data)}`;
   }
 }

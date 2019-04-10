@@ -7,14 +7,14 @@ import Sorter from './sorter.js';
 import TotalCost from './total-cost.js';
 
 import {
-  createElement
+  createElement,
+  ESC_KEYCODE
 } from './utils.js';
 import {
-  NamesFilterDict
-} from './filters/namesFilterDict.js';
+  NameFilterDict
+} from './filters/name-filter-dict.js';
 
 const MESSAGE_STYLE = `style="width: 100%; text-align: center;"`;
-const ESC_KEYCODE = 27;
 const buttonforNewEvent = document.querySelector(`.trip-controls__new-event`);
 const main = document.querySelector(`.main`);
 const containerElementFilter = document.querySelector(`.trip-controls__menus.view-switch`);
@@ -70,15 +70,15 @@ const renderFilters = (filterData) => {
   filter.setOnChangeFilter(renderWithConditions);
 };
 
-renderFilters(NamesFilterDict);
+renderFilters(NameFilterDict);
 
 const changeStatusDisabledButton = () => {
   const inputs = containerElementFilter.querySelectorAll(`input`);
   const status = !!openedCards.length;
-  for (let input of inputs) {
+  inputs.forEach((input) => {
     input.disabled = status;
-  }
-  sorter.changDisabled(status);
+  });
+  sorter.changeDisabled(status);
 };
 
 const deleteCard = (cardEditInstance) => {
@@ -121,7 +121,7 @@ const getOnSubmitHandler = (card, cardEdit, method) => (dataCard) => {
       }
       point.render();
       cardEdit.replace(point);
-      cardEdit.unrender();
+      cardEdit.unRender();
       buttonforNewEvent.disabled = false;
       renderWithConditions();
     })
@@ -142,17 +142,17 @@ const onClickCard = (card) => {
   cardEdit.setOnSubmit(getOnSubmitHandler(card, cardEdit, `updatePoint`));
 
   cardEdit.setOnDelete(deleteCard);
-  card.unrender();
+  card.unRender();
 };
 
 const renderBoardCards = (data = localModel.getSavedData()) => {
   containerCards.innerHTML = ``;
   const fragment = document.createDocumentFragment();
-  for (let element of data) {
+  data.forEach((element) => {
     let card = new Card(element);
     card.setOnClick(onClickCard);
     fragment.appendChild(card.render());
-  }
+  });
   containerCards.appendChild(fragment);
   totalCost.render(data);
 };
@@ -160,7 +160,7 @@ const renderBoardCards = (data = localModel.getSavedData()) => {
 const renderStatistic = () => {
   const elementStatistic = document.querySelector(`.statistic`);
   if (elementStatistic) {
-    statistic.updateView();
+    statistic.reRender();
   } else {
     document.body.appendChild(statistic.render());
   }
@@ -199,14 +199,14 @@ document.addEventListener(`keydown`, (event) => {
     } else {
       lastPair.card.render();
       lastPair.cardEdit.replace(lastPair.card);
-      lastPair.cardEdit.unrender();
+      lastPair.cardEdit.unRender();
     }
   }
 });
 
 buttonforNewEvent.addEventListener(`click`, () => {
   buttonforNewEvent.disabled = true;
-  const dataForNewEvent = localModel.getDataForNewEvent();
+  const dataForNewEvent = localModel.getDataForNewCard();
   const cardEdit = new CardEdit(dataForNewEvent, localModel.getSavedDestinations(), localModel.getSavedOffers());
   containerCards.insertBefore(cardEdit.render(), containerCards.firstChild);
   openedCards.push({cardEdit, card: undefined});

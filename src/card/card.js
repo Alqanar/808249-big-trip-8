@@ -2,8 +2,8 @@ import cloneDeep from 'lodash/cloneDeep';
 
 import BaseComponent from '../base-component.js';
 import {
-  getTemplate
-} from './createCardTemplate.js';
+  getCardTemplate
+} from './get-card-template.js';
 
 
 export default class Card extends BaseComponent {
@@ -15,19 +15,23 @@ export default class Card extends BaseComponent {
   }
 
   get template() {
-    return getTemplate(this._data);
+    return getCardTemplate(this._data);
   }
 
   get data() {
     return cloneDeep(this._data);
   }
 
-  bind() {
-    this._element.addEventListener(`click`, this._onClick);
+  saveChanges(newData) {
+    this._data = newData;
   }
 
-  unbind() {
-    this._element.removeEventListener(`click`, this._onClick);
+  setOnClick(onClickInjected) {
+    this._onClickInjected = onClickInjected;
+  }
+
+  _bind() {
+    this._element.addEventListener(`click`, this._onClick);
   }
 
   _onClick(event) {
@@ -37,11 +41,7 @@ export default class Card extends BaseComponent {
     }
   }
 
-  setOnClick(onClickInjected) {
-    this._onClickInjected = onClickInjected;
-  }
-
-  saveChanges(newData) {
-    this._data = newData;
+  _unBind() {
+    this._element.removeEventListener(`click`, this._onClick);
   }
 }

@@ -1,6 +1,6 @@
 export const getStatisticTemplate = () =>
   `<section class="statistic content-wrap visually-hidden" id="stats">
-    ${getStatisticInnerTemplate()};
+    ${getStatisticInnerTemplate()}
   </section>`;
 
 export const getStatisticInnerTemplate = () =>

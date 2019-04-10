@@ -2,7 +2,7 @@ import moment from 'moment';
 
 import {
   TYPES_MAP
-} from '../trip-types.js';
+} from '../types-map.js';
 import {
   countSpecialPrice,
   addZero
@@ -14,12 +14,12 @@ const createOffers = (specialsArray) => {
   const checkedSpecials = specialsArray.filter((element) => {
     return element.accepted;
   });
-  for (let special of checkedSpecials) {
+  checkedSpecials.forEach((special) => {
     specials +=
       `<li>
         <button class="trip-point__offer">${special.name} +&euro;&nbsp;${special.price}</button>
       </li>`;
-  }
+  });
   return specials;
 };
 
@@ -38,7 +38,7 @@ const showDuration = (duration) => {
 };
 
 
-export const getTemplate = (data) =>
+export const getCardTemplate = (data) =>
   `<article class="trip-point">
     <i class="trip-icon">${TYPES_MAP[data.type].icon}</i>
     <h3 class="trip-point__title">${TYPES_MAP[data.type].title} ${data.destination}</h3>

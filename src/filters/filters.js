@@ -2,7 +2,7 @@ import BaseComponent from '../base-component.js';
 
 import {
   getFilterTemplate
-} from './createFilterTemplate.js';
+} from './get-filter-template.js';
 
 export default class Filters extends BaseComponent {
   constructor(data) {
@@ -17,7 +17,22 @@ export default class Filters extends BaseComponent {
     return getFilterTemplate(this._data);
   }
 
-  bind() {
+  filterOut(data) {
+    switch (this._filterKind) {
+      case `future`:
+        return this._filterOutFuture(data);
+      case `past`:
+        return this._filterOutPast(data);
+      default:
+        return data;
+    }
+  }
+
+  setOnChangeFilter(onChangeFilterInjected) {
+    this._onChangeFilterInjected = onChangeFilterInjected;
+  }
+
+  _bind() {
     this._element.addEventListener(`change`, this._onChangeFilter);
   }
 
@@ -31,22 +46,7 @@ export default class Filters extends BaseComponent {
     return data.filter(({time: {dateEnd}}) => dateEnd.getTime() < dateNow);
   }
 
-  filterOut(data) {
-    switch (this._filterKind) {
-      case `future`:
-        return this._filterOutFuture(data);
-      case `past`:
-        return this._filterOutPast(data);
-      default:
-        return data;
-    }
-  }
-
-  unbind() {
-    this._element.removeEventListener(`change`, this._onChangeFilter);
-  }
-
-  _onChangeFilter() {
+  _onChangeFilter(event) {
     event.preventDefault();
     this._filterKind = event.target.value;
     if (this._onChangeFilterInjected) {
@@ -54,7 +54,7 @@ export default class Filters extends BaseComponent {
     }
   }
 
-  setOnChangeFilter(onChangeFilterInjected) {
-    this._onChangeFilterInjected = onChangeFilterInjected;
+  _unBind() {
+    this._element.removeEventListener(`change`, this._onChangeFilter);
   }
 }

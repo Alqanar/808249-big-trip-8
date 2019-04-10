@@ -3,13 +3,11 @@ import cloneDeep from 'lodash/cloneDeep';
 
 import BaseComponent from '../base-component.js';
 import {
-  getDuration,
-  block,
-  unblock
+  getDuration
 } from '../utils.js';
 import {
-  getTemplate
-} from './createCardEditTemplate.js';
+  getCardEditTemplate
+} from './get-card-edit-template.js';
 
 
 export default class CardEdit extends BaseComponent {
@@ -35,10 +33,52 @@ export default class CardEdit extends BaseComponent {
   }
 
   get template() {
-    return getTemplate(this._data, this._destinations);
+    return getCardEditTemplate(this._data, this._destinations);
   }
 
-  bind() {
+  changeTextOnButtonDelete(text) {
+    this._buttonDelete.innerHTML = text;
+  }
+
+  changeTextOnButtonSave(text) {
+    this._buttonSave.innerHTML = text;
+  }
+
+  destroy() {
+    this.container.removeChild(this._element);
+    this.unRender();
+  }
+
+  disableView() {
+    this._getObjectElements();
+    this._element.style.boxShadow = `0 11px 20px 0 rgba(0,0,0,0.22)`;
+
+    this._changeStatusDisabledElements(this._inputs, this._buttons, true);
+  }
+
+  enableView() {
+    this._changeStatusDisabledElements(this._inputs, this._buttons, false);
+  }
+
+  setOnDelete(deleteHandler) {
+    this._deleteHandler = deleteHandler;
+  }
+
+  setOnSubmit(submitHandler) {
+    this._submitHandler = submitHandler;
+  }
+
+  showError() {
+    const ANIMATION_TIMEOUT = 600;
+    this._element.style.boxShadow = `0 0 10px 0 red`;
+    this._element.style.animation = `shake ${ANIMATION_TIMEOUT / 1000}s`;
+
+    setTimeout(() => {
+      this._element.style.animation = ``;
+    }, ANIMATION_TIMEOUT);
+  }
+
+  _bind() {
     const time = this._data.time;
     this._buttonDelete = this._element.querySelector(`.point__button--save + .point__button`);
     this._buttonSave = this._element.querySelector(`.point__button--save`);
@@ -75,15 +115,24 @@ export default class CardEdit extends BaseComponent {
     );
   }
 
-  _onSelectWay(event) {
-    this._data.type = event.target.value;
-    const foundOffers = this._offers.find((element) => element.type === this._data.type);
-    if (foundOffers) {
-      this._data.specials = cloneDeep(foundOffers.offers);
-    } else {
-      this._data.specials = [];
-    }
-    this.reRender();
+  _changeStatusDisabled(collection, status) {
+    collection.forEach((element) => {
+      element.disabled = status;
+    });
+  }
+
+  _changeStatusDisabledElements(inputs, buttons, status) {
+    this._changeStatusDisabled(inputs, status);
+    this._changeStatusDisabled(buttons, status);
+  }
+
+  _getObjectElements() {
+    this._inputs = this._element.querySelectorAll(`form input`);
+    this._buttons = this._element.querySelectorAll(`form button`);
+  }
+
+  _onChangeFavorite(event) {
+    this._data.favorite = event.target.checked;
   }
 
   _onChangeDestination(event) {
@@ -97,7 +146,6 @@ export default class CardEdit extends BaseComponent {
       this._data.text = ``;
       this._data.pictures = [];
     }
-
     this.reRender();
   }
 
@@ -111,24 +159,25 @@ export default class CardEdit extends BaseComponent {
     if (foundOffer) {
       foundOffer.accepted = event.target.checked;
     }
-
     this.reRender();
   }
 
-  _onChangeFavorite(event) {
-    this._data.favorite = event.target.checked;
+  _onDelete(event) {
+    event.preventDefault();
+    if (this._deleteHandler) {
+      this._deleteHandler(this);
+    }
   }
 
-  unbind() {
-    this._element.querySelector(`.point form`).removeEventListener(`submit`, this._onSubmit);
-    this._element.querySelector(`.travel-way__select`).removeEventListener(`change`, this._onSelectWay);
-    this._element.querySelector(`.point__destination-input`).removeEventListener(`change`, this._onChangeDestination);
-    this._element.querySelector(`.point__price .point__input`).removeEventListener(`change`, this._onChangePrice);
-    this._element.querySelector(`.point__offers-wrap`).removeEventListener(`change`, this._onChangeOffers);
-    this._element.querySelector(`.point__favorite-input`).addEventListener(`change`, this._onChangeFavorite);
-    this._element.querySelector(`.point__buttons [type="reset"]`).removeEventListener(`click`, this._onDelete);
-    this._startPicker.destroy();
-    this._endPicker.destroy();
+  _onSelectWay(event) {
+    this._data.type = event.target.value;
+    const foundOffers = this._offers.find((element) => element.type === this._data.type);
+    if (foundOffers) {
+      this._data.specials = cloneDeep(foundOffers.offers);
+    } else {
+      this._data.specials = [];
+    }
+    this.reRender();
   }
 
   _onSubmit(event) {
@@ -139,57 +188,15 @@ export default class CardEdit extends BaseComponent {
     }
   }
 
-  setOnSubmit(submitHandler) {
-    this._submitHandler = submitHandler;
-  }
-
-  _onDelete(event) {
-    event.preventDefault();
-    if (this._deleteHandler) {
-      this._deleteHandler(this);
-    }
-  }
-
-  setOnDelete(deleteHandler) {
-    this._deleteHandler = deleteHandler;
-  }
-
-  destroy() {
-    this.container.removeChild(this._element);
-    this.unrender();
-  }
-
-  _getObjectElements() {
-    this._inputs = this._element.querySelectorAll(`form input`);
-    this._buttons = this._element.querySelectorAll(`form button`);
-  }
-
-  disableView() {
-    this._getObjectElements();
-    this._element.style.boxShadow = `0 11px 20px 0 rgba(0,0,0,0.22)`;
-
-    block(this._inputs, this._buttons);
-  }
-
-  enableView() {
-    unblock(this._inputs, this._buttons);
-  }
-
-  showError() {
-    const ANIMATION_TIMEOUT = 600;
-    this._element.style.boxShadow = `0 0 10px 0 red`;
-    this._element.style.animation = `shake ${ANIMATION_TIMEOUT / 1000}s`;
-
-    setTimeout(() => {
-      this._element.style.animation = ``;
-    }, ANIMATION_TIMEOUT);
-  }
-
-  changeTextOnButtonDelete(text) {
-    this._buttonDelete.innerHTML = text;
-  }
-
-  changeTextOnButtonSave(text) {
-    this._buttonSave.innerHTML = text;
+  _unBind() {
+    this._element.querySelector(`.point form`).removeEventListener(`submit`, this._onSubmit);
+    this._element.querySelector(`.travel-way__select`).removeEventListener(`change`, this._onSelectWay);
+    this._element.querySelector(`.point__destination-input`).removeEventListener(`change`, this._onChangeDestination);
+    this._element.querySelector(`.point__price .point__input`).removeEventListener(`change`, this._onChangePrice);
+    this._element.querySelector(`.point__offers-wrap`).removeEventListener(`change`, this._onChangeOffers);
+    this._element.querySelector(`.point__favorite-input`).addEventListener(`change`, this._onChangeFavorite);
+    this._element.querySelector(`.point__buttons [type="reset"]`).removeEventListener(`click`, this._onDelete);
+    this._startPicker.destroy();
+    this._endPicker.destroy();
   }
 }
