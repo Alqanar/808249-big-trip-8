@@ -1,5 +1,6 @@
 import moment from 'moment';
 
+export const ESC_KEYCODE = 27;
 
 export const createElement = (html) => {
   const newElement = document.createElement(`div`);
@@ -7,13 +8,33 @@ export const createElement = (html) => {
   return newElement.firstChild;
 };
 
-export const getDuration = ({dateStart, dateEnd}) => {
-  dateStart = moment(dateStart);
-  dateEnd = moment(dateEnd);
-  const duration = moment.duration(dateEnd.diff(dateStart));
+export const countSpecialPrice = (specialsArray) => {
+  let generalSpecialPrice = 0;
+  specialsArray.forEach((special) => {
+    if (special.accepted) {
+      generalSpecialPrice += special.price;
+    }
+  });
+  return generalSpecialPrice;
+};
+
+export const addZero = (number) =>
+  String(number).padStart(2, `0`);
+
+export const getRawDuration = ({dateStart, dateEnd}) => {
+  const timeStart = moment(dateStart);
+  const timeEnd = moment(dateEnd);
+  const myLocalMoment = moment;
+  return myLocalMoment.duration(timeEnd.diff(timeStart));
+};
+
+export const getDuration = (time) => {
+  const duration = getRawDuration(time);
+  const days = duration.days();
   const hours = duration.hours();
   const minutes = duration.minutes();
   return {
+    days,
     hours,
     minutes
   };
@@ -52,22 +73,6 @@ export const transformDataToServer = (objectUserData) => {
     'offers': objectUserData.specials.map(({name, price, accepted}) => ({title: name, price, accepted})),
     'type': objectUserData.type
   };
-};
-
-const changeStatusDisabled = (collection, status) => {
-  for (let element of collection) {
-    element.disabled = status;
-  }
-};
-
-export const block = (inputs, buttons) => {
-  changeStatusDisabled(inputs, true);
-  changeStatusDisabled(buttons, true);
-};
-
-export const unblock = (inputs, buttons) => {
-  changeStatusDisabled(inputs, false);
-  changeStatusDisabled(buttons, false);
 };
 
 export const generateId = () => {

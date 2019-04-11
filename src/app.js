@@ -3,29 +3,41 @@ import CardEdit from './card/card-edit.js';
 import Filters from './filters/filters.js';
 import Statistic from './statistic/statistic.js';
 import LocalModel from './local-model.js';
+import Sorter from './sorter.js';
+import TotalCost from './total-cost.js';
 
 import {
-  createElement
+  createElement,
+  ESC_KEYCODE
 } from './utils.js';
 import {
-  NamesFilterDict
-} from './filters/namesFilterDict.js';
+  NameFilterDict
+} from './filters/name-filter-dict.js';
 
 const MESSAGE_STYLE = `style="width: 100%; text-align: center;"`;
+const buttonforNewEvent = document.querySelector(`.trip-controls__new-event`);
 const main = document.querySelector(`.main`);
 const containerElementFilter = document.querySelector(`.trip-controls__menus.view-switch`);
 const containerCards = document.querySelector(`.trip-day__items`);
 const loading = createElement(`<p ${MESSAGE_STYLE}>Loading route...</p>`);
 const error = createElement(`<p ${MESSAGE_STYLE}>Something went wrong while loading your route info. Check your connection or try again later</p>`);
+let openedCards = [];
 let activeLink = document.querySelector(`.view-switch__item--active`);
 
 let localModel;
+let filter;
 const statistic = new Statistic([]);
+const sorter = new Sorter();
+sorter.setElement(main.querySelector(`.trip-sorting`));
+const totalCost = new TotalCost();
+totalCost.setElement(document.querySelector(`.trip__total-cost`));
+
 
 export const init = (apiParams, storeParams) => {
   localModel = new LocalModel(apiParams, storeParams);
 
   containerCards.appendChild(loading);
+  sorter.setOnchangeSort(renderWithConditions);
 
   localModel.init()
     .then(() => {
@@ -40,38 +52,34 @@ export const init = (apiParams, storeParams) => {
     });
 };
 
-const onChangeFilter = (filtersId) => {
-  let dataToRender = [];
-  const dateNow = new Date().getTime();
-  switch (filtersId) {
-    case `filter-everything`:
-      dataToRender = localModel.getSavedData();
-      break;
 
-    case `filter-future`:
-      dataToRender = localModel.getSavedData().filter(({time: {dateStart}}) => dateStart.getTime() > dateNow);
-      break;
-
-    case `filter-past`:
-      dataToRender = localModel.getSavedData().filter(({time: {dateEnd}}) => dateEnd.getTime() < dateNow);
-      break;
+const renderWithConditions = () => {
+  if (!openedCards.length) {
+    renderBoardCards(filter.filterOut(sorter.sort(localModel.getSavedData())));
   }
-  renderBoardCards(dataToRender);
 };
 
 const renderFilters = (filterData) => {
-  const filter = new Filters(filterData);
+  filter = new Filters(filterData);
   const formFilter = containerElementFilter.querySelector(`.trip-filter`);
   if (formFilter) {
     containerElementFilter.removeChild(formFilter);
   }
   containerElementFilter.appendChild(filter.render());
 
-  filter.setOnChangeFilter(onChangeFilter);
+  filter.setOnChangeFilter(renderWithConditions);
 };
 
-renderFilters(NamesFilterDict);
+renderFilters(NameFilterDict);
 
+const changeStatusDisabledButton = () => {
+  const inputs = containerElementFilter.querySelectorAll(`input`);
+  const status = !!openedCards.length;
+  inputs.forEach((input) => {
+    input.disabled = status;
+  });
+  sorter.changeDisabled(status);
+};
 
 const deleteCard = (cardEditInstance) => {
   cardEditInstance.disableView();
@@ -81,7 +89,10 @@ const deleteCard = (cardEditInstance) => {
     .then(() => {
       cardEditInstance.enableView();
       cardEditInstance.changeTextOnButtonDelete(`Delete`);
+      openedCards = openedCards.filter(({cardEdit}) => cardEdit.id !== cardEditInstance.id);
+      changeStatusDisabledButton();
       cardEditInstance.destroy();
+      totalCost.render(localModel.getSavedData());
     })
     .catch(() => {
       cardEditInstance.enableView();
@@ -90,49 +101,66 @@ const deleteCard = (cardEditInstance) => {
     });
 };
 
+const getOnSubmitHandler = (card, cardEdit, method) => (dataCard) => {
+  let point = card;
+  if (point) {
+    point.saveChanges(dataCard);
+  }
+  delete dataCard.isNewCard;
+  cardEdit.disableView();
+  cardEdit.changeTextOnButtonSave(`Saving...`);
+
+  localModel[method](dataCard)
+    .then(() => {
+      cardEdit.enableView();
+      cardEdit.changeTextOnButtonSave(`Save`);
+      openedCards = openedCards.filter(({cardEdit: elem}) => elem.id !== dataCard.id);
+      changeStatusDisabledButton();
+      if (!point) {
+        point = new Card(dataCard);
+      }
+      point.render();
+      cardEdit.replace(point);
+      cardEdit.unRender();
+      buttonforNewEvent.disabled = false;
+      renderWithConditions();
+    })
+    .catch(() => {
+      cardEdit.enableView();
+      cardEdit.changeTextOnButtonSave(`Save`);
+      cardEdit.showError();
+    });
+};
+
 const onClickCard = (card) => {
   const cardEdit = new CardEdit(card.data, localModel.getSavedDestinations(), localModel.getSavedOffers());
   cardEdit.render();
+  openedCards.push({cardEdit, card});
+  changeStatusDisabledButton();
   card.replace(cardEdit);
-  cardEdit.setOnSubmit((dataCard) => {
-    card.saveChanges(dataCard);
 
-    cardEdit.disableView();
-    cardEdit.changeTextOnButtonSave(`Saving...`);
+  cardEdit.setOnSubmit(getOnSubmitHandler(card, cardEdit, `updatePoint`));
 
-    localModel.updatePoint(dataCard)
-      .then(() => {
-        cardEdit.enableView();
-        cardEdit.changeTextOnButtonSave(`Save`);
-        card.render();
-        cardEdit.replace(card);
-        cardEdit.unrender();
-      })
-      .catch(() => {
-        cardEdit.enableView();
-        cardEdit.changeTextOnButtonSave(`Save`);
-        cardEdit.showError();
-      });
-  });
   cardEdit.setOnDelete(deleteCard);
-  card.unrender();
+  card.unRender();
 };
 
-export const renderBoardCards = (data = localModel.getSavedData()) => {
+const renderBoardCards = (data = localModel.getSavedData()) => {
   containerCards.innerHTML = ``;
   const fragment = document.createDocumentFragment();
-  for (let element of data) {
+  data.forEach((element) => {
     let card = new Card(element);
     card.setOnClick(onClickCard);
     fragment.appendChild(card.render());
-  }
+  });
   containerCards.appendChild(fragment);
+  totalCost.render(data);
 };
 
 const renderStatistic = () => {
   const elementStatistic = document.querySelector(`.statistic`);
   if (elementStatistic) {
-    statistic.updateView();
+    statistic.reRender();
   } else {
     document.body.appendChild(statistic.render());
   }
@@ -159,4 +187,37 @@ window.addEventListener(`offline`, () => {
 window.addEventListener(`online`, () => {
   document.title = `Big Trip`;
   localModel.syncTasks();
+});
+
+document.addEventListener(`keydown`, (event) => {
+  if (event.keyCode === ESC_KEYCODE) {
+    const lastPair = openedCards.pop();
+    changeStatusDisabledButton();
+    if (!lastPair.card) {
+      lastPair.cardEdit.destroy();
+      buttonforNewEvent.disabled = false;
+    } else {
+      lastPair.card.render();
+      lastPair.cardEdit.replace(lastPair.card);
+      lastPair.cardEdit.unRender();
+    }
+  }
+});
+
+buttonforNewEvent.addEventListener(`click`, () => {
+  buttonforNewEvent.disabled = true;
+  const dataForNewEvent = localModel.getDataForNewCard();
+  const cardEdit = new CardEdit(dataForNewEvent, localModel.getSavedDestinations(), localModel.getSavedOffers());
+  containerCards.insertBefore(cardEdit.render(), containerCards.firstChild);
+  openedCards.push({cardEdit, card: undefined});
+  changeStatusDisabledButton();
+
+  cardEdit.setOnSubmit(getOnSubmitHandler(undefined, cardEdit, `createPoint`));
+
+  cardEdit.setOnDelete(() => {
+    cardEdit.disableView();
+    cardEdit.changeTextOnButtonDelete(`Deleting...`);
+    cardEdit.destroy();
+    buttonforNewEvent.disabled = false;
+  });
 });

@@ -6,15 +6,19 @@ import BaseComponent from '../base-component.js';
 import {
   getStatisticTemplate,
   getStatisticInnerTemplate
-} from './createStatisticTemplate.js';
+} from './get-statistic-template.js';
 import {
   TYPES_MAP
-} from '../trip-types.js';
+} from '../types-map.js';
+import {
+  countSpecialPrice,
+  getRawDuration
+} from '../utils.js';
 
 const BAR_HEIGHT = 55;
 
 const getLabel = (obj, elementData) => {
-  const label = TYPES_MAP[elementData.type].icon + ` ` + elementData.type;
+  const label = `${TYPES_MAP[elementData.type].icon} ${elementData.type}`;
   if (!obj[label]) {
     obj[label] = 0;
   }
@@ -34,29 +38,20 @@ export default class Statistic extends BaseComponent {
     this._element.classList.toggle(`visually-hidden`);
   }
 
-  _getMoneySummary() {
-    let moneySummary = {};
-    for (let elementData of this._data) {
-      const label = getLabel(moneySummary, elementData);
-      moneySummary[label] += elementData.price;
-    }
-    return moneySummary;
+  renderCharts(dataForGraph) {
+    this._data = dataForGraph;
+    this._drawGraph(this.element.querySelector(`.statistic__money`), this._getMoneySummary(), `MONEY`, (val) => `€ ${val}`);
+    this._drawGraph(this.element.querySelector(`.statistic__transport`), this._getUseOfTransport(), `TRANSPORT`, (val) => `${val}x`);
+    this._drawGraph(this.element.querySelector(`.statistic__time-spend`), this._getDurationOfTypePoint(), `TIME SPENT`, (val) => `${val}H`);
   }
 
-  _getUseOfTransport() {
-    let useOfTransport = {};
-    for (let elementData of this._data) {
-      if (TYPES_MAP[elementData.type].type === `move`) {
-        const label = getLabel(useOfTransport, elementData);
-        useOfTransport[label] += 1;
-      }
-    }
-    return useOfTransport;
+  reRender() {
+    this._element.innerHTML = getStatisticInnerTemplate();
   }
 
-  _drawGraph(domElement, methodForCreationData, title, format) {
-    const labelsType = Object.keys(methodForCreationData);
-    const sums = Object.values(methodForCreationData);
+  _drawGraph(domElement, drawingData, title, format) {
+    const labelsType = Object.keys(drawingData);
+    const sums = Object.values(drawingData);
     domElement.height = BAR_HEIGHT * labelsType.length;
     return new Chart(domElement, {
       plugins: [ChartDataLabels],
@@ -124,13 +119,32 @@ export default class Statistic extends BaseComponent {
     });
   }
 
-  updateView() {
-    this._element.innerHTML = getStatisticInnerTemplate();
+  _getDurationOfTypePoint() {
+    let durationOfTypePoint = {};
+    this._data.forEach((elementData) => {
+      const label = getLabel(durationOfTypePoint, elementData);
+      durationOfTypePoint[label] += Math.round(getRawDuration(elementData.time).asHours());
+    });
+    return durationOfTypePoint;
   }
 
-  renderCharts(dataForGraph) {
-    this._data = dataForGraph;
-    this._drawGraph(this.element.querySelector(`.statistic__money`), this._getMoneySummary(), `MONEY`, (val) => `€ ${val}`);
-    this._drawGraph(this.element.querySelector(`.statistic__transport`), this._getUseOfTransport(), `TRANSPORT`, (val) => `${val}x`);
+  _getMoneySummary() {
+    let moneySummary = {};
+    this._data.forEach((elementData) => {
+      const label = getLabel(moneySummary, elementData);
+      moneySummary[label] += elementData.price + countSpecialPrice(elementData.specials);
+    });
+    return moneySummary;
+  }
+
+  _getUseOfTransport() {
+    let useOfTransport = {};
+    this._data.forEach((elementData) => {
+      if (TYPES_MAP[elementData.type].type === `move`) {
+        const label = getLabel(useOfTransport, elementData);
+        useOfTransport[label] += 1;
+      }
+    });
+    return useOfTransport;
   }
 }
