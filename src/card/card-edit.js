@@ -139,13 +139,8 @@ export default class CardEdit extends BaseComponent {
     this._data.destination = event.target.value;
     const foundDestination = this._destinations.find((element) => element.name === this._data.destination);
 
-    if (foundDestination) {
-      this._data.text = foundDestination.description;
-      this._data.pictures = foundDestination.pictures.map(({src, description}) => ({src, value: description}));
-    } else {
-      this._data.text = ``;
-      this._data.pictures = [];
-    }
+    this._data.text = foundDestination ? foundDestination.description : ``;
+    this._data.pictures = foundDestination ? foundDestination.pictures.map(({src, description}) => ({src, value: description})) : [];
     this.reRender();
   }
 
@@ -172,11 +167,7 @@ export default class CardEdit extends BaseComponent {
   _onSelectWay(event) {
     this._data.type = event.target.value;
     const foundOffers = this._offers.find((element) => element.type === this._data.type);
-    if (foundOffers) {
-      this._data.specials = cloneDeep(foundOffers.offers);
-    } else {
-      this._data.specials = [];
-    }
+    this._data.specials = foundOffers ? cloneDeep(foundOffers.offers) : [];
     this.reRender();
   }
 
