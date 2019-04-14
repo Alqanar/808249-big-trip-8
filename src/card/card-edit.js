@@ -9,6 +9,16 @@ import {
   getCardEditTemplate
 } from './get-card-edit-template.js';
 
+const changeStatusDisabled = (collection, status) => {
+  collection.forEach((element) => {
+    element.disabled = status;
+  });
+};
+
+const changeStatusDisabledElements = (inputs, buttons, status) => {
+  changeStatusDisabled(inputs, status);
+  changeStatusDisabled(buttons, status);
+};
 
 export default class CardEdit extends BaseComponent {
   constructor(data, destinations, offers) {
@@ -16,23 +26,23 @@ export default class CardEdit extends BaseComponent {
 
     this._destinations = destinations;
     this._offers = offers;
-    this._submitHandler = null;
-    this._deleteHandler = null;
+    this._onSaveClick = null;
+    this._onDeleteClick = null;
     this._escPressHandler = null;
-    this._onSubmit = this._onSubmit.bind(this);
-    this._onDelete = this._onDelete.bind(this);
-    this._onSelectWay = this._onSelectWay.bind(this);
-    this._onChangeDestination = this._onChangeDestination.bind(this);
-    this._onChangePrice = this._onChangePrice.bind(this);
-    this._onChangeOffers = this._onChangeOffers.bind(this);
-    this._onChangeFavorite = this._onChangeFavorite.bind(this);
+    this._onSaveClickInner = this._onSaveClickInner.bind(this);
+    this._onDeleteClickInner = this._onDeleteClickInner.bind(this);
+    this._onTypeChange = this._onTypeChange.bind(this);
+    this._onDestinationChange = this._onDestinationChange.bind(this);
+    this._onPriceChange = this._onPriceChange.bind(this);
+    this._onOffersChange = this._onOffersChange.bind(this);
+    this._onFavoriteChange = this._onFavoriteChange.bind(this);
     this._inputs = null;
     this._buttons = null;
     this._buttonDelete = null;
     this._buttonSave = null;
   }
 
-  get template() {
+  get _template() {
     return getCardEditTemplate(this._data, this._destinations);
   }
 
@@ -53,19 +63,19 @@ export default class CardEdit extends BaseComponent {
     this._getObjectElements();
     this._element.style.boxShadow = `0 11px 20px 0 rgba(0,0,0,0.22)`;
 
-    this._changeStatusDisabledElements(this._inputs, this._buttons, true);
+    changeStatusDisabledElements(this._inputs, this._buttons, true);
   }
 
   enableView() {
-    this._changeStatusDisabledElements(this._inputs, this._buttons, false);
+    changeStatusDisabledElements(this._inputs, this._buttons, false);
   }
 
-  setOnDelete(deleteHandler) {
-    this._deleteHandler = deleteHandler;
+  setOnDelete(onDeleteClick) {
+    this._onDeleteClick = onDeleteClick;
   }
 
-  setOnSubmit(submitHandler) {
-    this._submitHandler = submitHandler;
+  setOnSubmit(onSaveClick) {
+    this._onSaveClick = onSaveClick;
   }
 
   showError() {
@@ -82,13 +92,13 @@ export default class CardEdit extends BaseComponent {
     const time = this._data.time;
     this._buttonDelete = this._element.querySelector(`.point__button--save + .point__button`);
     this._buttonSave = this._element.querySelector(`.point__button--save`);
-    this._element.querySelector(`.point form`).addEventListener(`submit`, this._onSubmit);
-    this._element.querySelector(`.travel-way__select`).addEventListener(`change`, this._onSelectWay);
-    this._element.querySelector(`.point__destination-input`).addEventListener(`change`, this._onChangeDestination);
-    this._element.querySelector(`.point__price .point__input`).addEventListener(`change`, this._onChangePrice);
-    this._element.querySelector(`.point__offers-wrap`).addEventListener(`change`, this._onChangeOffers);
+    this._element.querySelector(`.point form`).addEventListener(`submit`, this._onSaveClickInner);
+    this._element.querySelector(`.travel-way__select`).addEventListener(`change`, this._onTypeChange);
+    this._element.querySelector(`.point__destination-input`).addEventListener(`change`, this._onDestinationChange);
+    this._element.querySelector(`.point__price .point__input`).addEventListener(`change`, this._onPriceChange);
+    this._element.querySelector(`.point__offers-wrap`).addEventListener(`change`, this._onOffersChange);
     this._element.querySelector(`.point__favorite-input`).addEventListener(`change`, this._onChangeFavorite);
-    this._element.querySelector(`.point__buttons [type="reset"]`).addEventListener(`click`, this._onDelete);
+    this._element.querySelector(`.point__buttons [type="reset"]`).addEventListener(`click`, this._onDeleteClickInner);
 
     this._startPicker = flatpickr(
         this._element.querySelector(`.point__time .point__input:first-of-type`),
@@ -115,27 +125,16 @@ export default class CardEdit extends BaseComponent {
     );
   }
 
-  _changeStatusDisabled(collection, status) {
-    collection.forEach((element) => {
-      element.disabled = status;
-    });
-  }
-
-  _changeStatusDisabledElements(inputs, buttons, status) {
-    this._changeStatusDisabled(inputs, status);
-    this._changeStatusDisabled(buttons, status);
-  }
-
   _getObjectElements() {
     this._inputs = this._element.querySelectorAll(`form input`);
     this._buttons = this._element.querySelectorAll(`form button`);
   }
 
-  _onChangeFavorite(event) {
+  _onFavoriteChange(event) {
     this._data.favorite = event.target.checked;
   }
 
-  _onChangeDestination(event) {
+  _onDestinationChange(event) {
     this._data.destination = event.target.value;
     const foundDestination = this._destinations.find((element) => element.name === this._data.destination);
 
@@ -144,12 +143,12 @@ export default class CardEdit extends BaseComponent {
     this.reRender();
   }
 
-  _onChangePrice(event) {
+  _onPriceChange(event) {
     this._data.price = parseInt(event.target.value, 10);
     this.reRender();
   }
 
-  _onChangeOffers(event) {
+  _onOffersChange(event) {
     const foundOffer = this._data.specials.find((element) => element.name === event.target.value);
     if (foundOffer) {
       foundOffer.accepted = event.target.checked;
@@ -157,36 +156,36 @@ export default class CardEdit extends BaseComponent {
     this.reRender();
   }
 
-  _onDelete(event) {
+  _onDeleteClickInner(event) {
     event.preventDefault();
-    if (this._deleteHandler) {
-      this._deleteHandler(this);
+    if (this._onDeleteClick) {
+      this._onDeleteClick(this);
     }
   }
 
-  _onSelectWay(event) {
+  _onTypeChange(event) {
     this._data.type = event.target.value;
     const foundOffers = this._offers.find((element) => element.type === this._data.type);
     this._data.specials = foundOffers ? cloneDeep(foundOffers.offers) : [];
     this.reRender();
   }
 
-  _onSubmit(event) {
+  _onSaveClickInner(event) {
     event.preventDefault();
-    if (this._submitHandler) {
+    if (this._onSaveClick) {
       this._data.duration = getDuration(this._data.time);
-      this._submitHandler(this._data);
+      this._onSaveClick(this._data);
     }
   }
 
   _unBind() {
-    this._element.querySelector(`.point form`).removeEventListener(`submit`, this._onSubmit);
-    this._element.querySelector(`.travel-way__select`).removeEventListener(`change`, this._onSelectWay);
-    this._element.querySelector(`.point__destination-input`).removeEventListener(`change`, this._onChangeDestination);
-    this._element.querySelector(`.point__price .point__input`).removeEventListener(`change`, this._onChangePrice);
-    this._element.querySelector(`.point__offers-wrap`).removeEventListener(`change`, this._onChangeOffers);
-    this._element.querySelector(`.point__favorite-input`).addEventListener(`change`, this._onChangeFavorite);
-    this._element.querySelector(`.point__buttons [type="reset"]`).removeEventListener(`click`, this._onDelete);
+    this._element.querySelector(`.point form`).removeEventListener(`submit`, this._onSaveClickInner);
+    this._element.querySelector(`.travel-way__select`).removeEventListener(`change`, this._onTypeChange);
+    this._element.querySelector(`.point__destination-input`).removeEventListener(`change`, this._onDestinationChange);
+    this._element.querySelector(`.point__price .point__input`).removeEventListener(`change`, this._onPriceChange);
+    this._element.querySelector(`.point__offers-wrap`).removeEventListener(`change`, this._onOffersChange);
+    this._element.querySelector(`.point__favorite-input`).addEventListener(`change`, this._onFavoriteChange);
+    this._element.querySelector(`.point__buttons [type="reset"]`).removeEventListener(`click`, this._onDeleteClickInner);
     this._startPicker.destroy();
     this._endPicker.destroy();
   }

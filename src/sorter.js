@@ -9,8 +9,8 @@ export default class Sorter extends BaseComponent {
   constructor() {
     super();
 
-    this._onChangeSort = this._onChangeSort.bind(this);
-    this._sortHandler = null;
+    this._onSortingChangeInner = this._onSortingChangeInner.bind(this);
+    this._onSortingChange = null;
     this._sortKind = `event`;
   }
 
@@ -26,8 +26,8 @@ export default class Sorter extends BaseComponent {
     this._bind();
   }
 
-  setOnchangeSort(sortHandler) {
-    this._sortHandler = sortHandler;
+  setOnChange(onSortingChange) {
+    this._onSortingChange = onSortingChange;
   }
 
   sort(data) {
@@ -42,14 +42,14 @@ export default class Sorter extends BaseComponent {
   }
 
   _bind() {
-    this._element.addEventListener(`change`, this._onChangeSort);
+    this._element.addEventListener(`change`, this._onSortingChangeInner);
   }
 
-  _onChangeSort(event) {
+  _onSortingChangeInner(event) {
     event.preventDefault();
     this._sortKind = event.target.value;
-    if (this._sortHandler) {
-      this._sortHandler();
+    if (this._onSortingChange) {
+      this._onSortingChange();
     }
   }
 
@@ -66,6 +66,6 @@ export default class Sorter extends BaseComponent {
   }
 
   _unBind() {
-    this._element.querySelector(`.trip-sorting`).removeEventListener(`change`, this._onChangeSort);
+    this._element.querySelector(`.trip-sorting`).removeEventListener(`change`, this._onSortingChangeInner);
   }
 }

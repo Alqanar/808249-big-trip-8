@@ -25,12 +25,82 @@ const getLabel = (obj, elementData) => {
   return label;
 };
 
+const drawGraph = (domElement, drawingData, title, format) => {
+  const labelsType = Object.keys(drawingData);
+  const sums = Object.values(drawingData);
+  domElement.height = BAR_HEIGHT * labelsType.length;
+  return new Chart(domElement, {
+    plugins: [ChartDataLabels],
+    type: `horizontalBar`,
+    data: {
+      labels: labelsType,
+      datasets: [{
+        data: sums,
+        backgroundColor: `#ffffff`,
+        hoverBackgroundColor: `#ffffff`,
+        anchor: `start`
+      }]
+    },
+    options: {
+      plugins: {
+        datalabels: {
+          font: {
+            size: 13
+          },
+          color: `#000000`,
+          anchor: `end`,
+          align: `start`,
+          formatter: format
+        }
+      },
+      title: {
+        display: true,
+        text: title,
+        fontColor: `#000000`,
+        fontSize: 23,
+        position: `left`
+      },
+      scales: {
+        yAxes: [{
+          ticks: {
+            fontColor: `#000000`,
+            padding: 5,
+            fontSize: 13,
+          },
+          gridLines: {
+            display: false,
+            drawBorder: false
+          },
+          barThickness: 44,
+        }],
+        xAxes: [{
+          ticks: {
+            display: false,
+            beginAtZero: true,
+          },
+          gridLines: {
+            display: false,
+            drawBorder: false
+          },
+          minBarLength: 50
+        }],
+      },
+      legend: {
+        display: false
+      },
+      tooltips: {
+        enabled: false,
+      }
+    }
+  });
+};
+
 export default class Statistic extends BaseComponent {
   constructor(data) {
     super(data);
   }
 
-  get template() {
+  get _template() {
     return getStatisticTemplate();
   }
 
@@ -40,83 +110,13 @@ export default class Statistic extends BaseComponent {
 
   renderCharts(dataForGraph) {
     this._data = dataForGraph;
-    this._drawGraph(this.element.querySelector(`.statistic__money`), this._getMoneySummary(), `MONEY`, (val) => `€ ${val}`);
-    this._drawGraph(this.element.querySelector(`.statistic__transport`), this._getUseOfTransport(), `TRANSPORT`, (val) => `${val}x`);
-    this._drawGraph(this.element.querySelector(`.statistic__time-spend`), this._getDurationOfTypePoint(), `TIME SPENT`, (val) => `${val}H`);
+    drawGraph(this.element.querySelector(`.statistic__money`), this._getMoneySummary(), `MONEY`, (val) => `€ ${val}`);
+    drawGraph(this.element.querySelector(`.statistic__transport`), this._getUseOfTransport(), `TRANSPORT`, (val) => `${val}x`);
+    drawGraph(this.element.querySelector(`.statistic__time-spend`), this._getDurationOfTypePoint(), `TIME SPENT`, (val) => `${val}H`);
   }
 
   reRender() {
     this._element.innerHTML = getStatisticInnerTemplate();
-  }
-
-  _drawGraph(domElement, drawingData, title, format) {
-    const labelsType = Object.keys(drawingData);
-    const sums = Object.values(drawingData);
-    domElement.height = BAR_HEIGHT * labelsType.length;
-    return new Chart(domElement, {
-      plugins: [ChartDataLabels],
-      type: `horizontalBar`,
-      data: {
-        labels: labelsType,
-        datasets: [{
-          data: sums,
-          backgroundColor: `#ffffff`,
-          hoverBackgroundColor: `#ffffff`,
-          anchor: `start`
-        }]
-      },
-      options: {
-        plugins: {
-          datalabels: {
-            font: {
-              size: 13
-            },
-            color: `#000000`,
-            anchor: `end`,
-            align: `start`,
-            formatter: format
-          }
-        },
-        title: {
-          display: true,
-          text: title,
-          fontColor: `#000000`,
-          fontSize: 23,
-          position: `left`
-        },
-        scales: {
-          yAxes: [{
-            ticks: {
-              fontColor: `#000000`,
-              padding: 5,
-              fontSize: 13,
-            },
-            gridLines: {
-              display: false,
-              drawBorder: false
-            },
-            barThickness: 44,
-          }],
-          xAxes: [{
-            ticks: {
-              display: false,
-              beginAtZero: true,
-            },
-            gridLines: {
-              display: false,
-              drawBorder: false
-            },
-            minBarLength: 50
-          }],
-        },
-        legend: {
-          display: false
-        },
-        tooltips: {
-          enabled: false,
-        }
-      }
-    });
   }
 
   _getDurationOfTypePoint() {
