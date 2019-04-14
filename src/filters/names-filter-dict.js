@@ -1,4 +1,4 @@
-export const NameFilterDict = [
+export const NAMES_FILTER_DICT = [
   {
     id: `filter-everything`,
     label: `everything`,

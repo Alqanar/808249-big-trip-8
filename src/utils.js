@@ -68,7 +68,7 @@ export const transformDataToServer = (objectUserData) => {
       'name': objectUserData.destination,
       'pictures': objectUserData.pictures.map(({src, value}) => ({src, description: value}))
     },
-    'id': objectUserData.id + ``,
+    'id': `${objectUserData.id}`,
     'is_favorite': objectUserData.favorite,
     'offers': objectUserData.specials.map(({name, price, accepted}) => ({title: name, price, accepted})),
     'type': objectUserData.type
