@@ -10,11 +10,11 @@ export default class Card extends BaseComponent {
   constructor(data) {
     super(data);
 
-    this._onClickInjected = null;
-    this._onClick = this._onClick.bind(this);
+    this._onCardClick = null;
+    this._onCardClickInner = this._onCardClickInner.bind(this);
   }
 
-  get template() {
+  get _template() {
     return getCardTemplate(this._data);
   }
 
@@ -26,22 +26,22 @@ export default class Card extends BaseComponent {
     this._data = newData;
   }
 
-  setOnClick(onClickInjected) {
-    this._onClickInjected = onClickInjected;
+  setOnClick(onCardClick) {
+    this._onCardClick = onCardClick;
   }
 
   _bind() {
-    this._element.addEventListener(`click`, this._onClick);
+    this._element.addEventListener(`click`, this._onCardClickInner);
   }
 
-  _onClick(event) {
-    if (this._onClickInjected) {
+  _onCardClickInner(event) {
+    if (this._onCardClick) {
       event.preventDefault();
-      this._onClickInjected(this);
+      this._onCardClick(this);
     }
   }
 
   _unBind() {
-    this._element.removeEventListener(`click`, this._onClick);
+    this._element.removeEventListener(`click`, this._onCardClickInner);
   }
 }

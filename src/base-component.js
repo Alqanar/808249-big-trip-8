@@ -25,12 +25,12 @@ export default class BaseComponent {
     return this._data.id;
   }
 
-  get template() {
+  get _template() {
     throw new Error(`You have to define template.`);
   }
 
   render() {
-    this._element = createElement(this.template);
+    this._element = createElement(this._template);
     this._bind();
     return this._element;
   }

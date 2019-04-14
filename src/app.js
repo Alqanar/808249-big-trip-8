@@ -11,13 +11,13 @@ import {
   ESC_KEYCODE
 } from './utils.js';
 import {
-  NameFilterDict
-} from './filters/name-filter-dict.js';
+  NAMES_FILTER_DICT
+} from './filters/names-filter-dict.js';
 
 const MESSAGE_STYLE = `style="width: 100%; text-align: center;"`;
-const buttonforNewEvent = document.querySelector(`.trip-controls__new-event`);
+const buttonForNewEvent = document.querySelector(`.trip-controls__new-event`);
 const main = document.querySelector(`.main`);
-const containerElementFilter = document.querySelector(`.trip-controls__menus.view-switch`);
+const containerFilter = document.querySelector(`.trip-controls__menus.view-switch`);
 const containerCards = document.querySelector(`.trip-day__items`);
 const loading = createElement(`<p ${MESSAGE_STYLE}>Loading route...</p>`);
 const error = createElement(`<p ${MESSAGE_STYLE}>Something went wrong while loading your route info. Check your connection or try again later</p>`);
@@ -37,7 +37,7 @@ export const init = (apiParams, storeParams) => {
   localModel = new LocalModel(apiParams, storeParams);
 
   containerCards.appendChild(loading);
-  sorter.setOnchangeSort(renderWithConditions);
+  sorter.setOnChange(fullRender);
 
   localModel.init()
     .then(() => {
@@ -53,7 +53,7 @@ export const init = (apiParams, storeParams) => {
 };
 
 
-const renderWithConditions = () => {
+const fullRender = () => {
   if (!openedCards.length) {
     renderBoardCards(filter.filterOut(sorter.sort(localModel.getSavedData())));
   }
@@ -61,19 +61,19 @@ const renderWithConditions = () => {
 
 const renderFilters = (filterData) => {
   filter = new Filters(filterData);
-  const formFilter = containerElementFilter.querySelector(`.trip-filter`);
+  const formFilter = containerFilter.querySelector(`.trip-filter`);
   if (formFilter) {
-    containerElementFilter.removeChild(formFilter);
+    containerFilter.removeChild(formFilter);
   }
-  containerElementFilter.appendChild(filter.render());
+  containerFilter.appendChild(filter.render());
 
-  filter.setOnChangeFilter(renderWithConditions);
+  filter.setOnChange(fullRender);
 };
 
-renderFilters(NameFilterDict);
+renderFilters(NAMES_FILTER_DICT);
 
 const changeStatusDisabledButton = () => {
-  const inputs = containerElementFilter.querySelectorAll(`input`);
+  const inputs = containerFilter.querySelectorAll(`input`);
   const status = !!openedCards.length;
   inputs.forEach((input) => {
     input.disabled = status;
@@ -81,7 +81,7 @@ const changeStatusDisabledButton = () => {
   sorter.changeDisabled(status);
 };
 
-const deleteCard = (cardEditInstance) => {
+const deleteCardCallback = (cardEditInstance) => {
   cardEditInstance.disableView();
   cardEditInstance.changeTextOnButtonDelete(`Deleting...`);
 
@@ -101,8 +101,9 @@ const deleteCard = (cardEditInstance) => {
     });
 };
 
-const getOnSubmitHandler = (card, cardEdit, method) => (dataCard) => {
+const getSubmitCallback = (card, cardEdit, method) => (dataCard) => {
   let point = card;
+  let performMethod = localModel[method];
   if (point) {
     point.saveChanges(dataCard);
   }
@@ -110,7 +111,7 @@ const getOnSubmitHandler = (card, cardEdit, method) => (dataCard) => {
   cardEdit.disableView();
   cardEdit.changeTextOnButtonSave(`Saving...`);
 
-  localModel[method](dataCard)
+  performMethod.call(localModel, dataCard)
     .then(() => {
       cardEdit.enableView();
       cardEdit.changeTextOnButtonSave(`Save`);
@@ -122,8 +123,8 @@ const getOnSubmitHandler = (card, cardEdit, method) => (dataCard) => {
       point.render();
       cardEdit.replace(point);
       cardEdit.unRender();
-      buttonforNewEvent.disabled = false;
-      renderWithConditions();
+      buttonForNewEvent.disabled = false;
+      fullRender();
     })
     .catch(() => {
       cardEdit.enableView();
@@ -132,16 +133,16 @@ const getOnSubmitHandler = (card, cardEdit, method) => (dataCard) => {
     });
 };
 
-const onClickCard = (card) => {
+const clickCardCallback = (card) => {
   const cardEdit = new CardEdit(card.data, localModel.getSavedDestinations(), localModel.getSavedOffers());
   cardEdit.render();
   openedCards.push({cardEdit, card});
   changeStatusDisabledButton();
   card.replace(cardEdit);
 
-  cardEdit.setOnSubmit(getOnSubmitHandler(card, cardEdit, `updatePoint`));
+  cardEdit.setOnSubmit(getSubmitCallback(card, cardEdit, `updatePoint`));
 
-  cardEdit.setOnDelete(deleteCard);
+  cardEdit.setOnDelete(deleteCardCallback);
   card.unRender();
 };
 
@@ -150,7 +151,7 @@ const renderBoardCards = (data = localModel.getSavedData()) => {
   const fragment = document.createDocumentFragment();
   data.forEach((element) => {
     let card = new Card(element);
-    card.setOnClick(onClickCard);
+    card.setOnClick(clickCardCallback);
     fragment.appendChild(card.render());
   });
   containerCards.appendChild(fragment);
@@ -158,8 +159,8 @@ const renderBoardCards = (data = localModel.getSavedData()) => {
 };
 
 const renderStatistic = () => {
-  const elementStatistic = document.querySelector(`.statistic`);
-  if (elementStatistic) {
+  const containerStatistic = document.querySelector(`.statistic`);
+  if (containerStatistic) {
     statistic.reRender();
   } else {
     document.body.appendChild(statistic.render());
@@ -167,7 +168,7 @@ const renderStatistic = () => {
   statistic.renderCharts(localModel.getSavedData());
 };
 
-containerElementFilter.addEventListener(`click`, (e) => {
+containerFilter.addEventListener(`click`, (e) => {
   const {target} = e;
   if (target.closest(`.view-switch__item`) && target !== activeLink) {
     e.preventDefault();
@@ -195,7 +196,7 @@ document.addEventListener(`keydown`, (event) => {
     changeStatusDisabledButton();
     if (!lastPair.card) {
       lastPair.cardEdit.destroy();
-      buttonforNewEvent.disabled = false;
+      buttonForNewEvent.disabled = false;
     } else {
       lastPair.card.render();
       lastPair.cardEdit.replace(lastPair.card);
@@ -204,20 +205,20 @@ document.addEventListener(`keydown`, (event) => {
   }
 });
 
-buttonforNewEvent.addEventListener(`click`, () => {
-  buttonforNewEvent.disabled = true;
+buttonForNewEvent.addEventListener(`click`, () => {
+  buttonForNewEvent.disabled = true;
   const dataForNewEvent = localModel.getDataForNewCard();
   const cardEdit = new CardEdit(dataForNewEvent, localModel.getSavedDestinations(), localModel.getSavedOffers());
   containerCards.insertBefore(cardEdit.render(), containerCards.firstChild);
   openedCards.push({cardEdit, card: undefined});
   changeStatusDisabledButton();
 
-  cardEdit.setOnSubmit(getOnSubmitHandler(undefined, cardEdit, `createPoint`));
+  cardEdit.setOnSubmit(getSubmitCallback(undefined, cardEdit, `createPoint`));
 
   cardEdit.setOnDelete(() => {
     cardEdit.disableView();
     cardEdit.changeTextOnButtonDelete(`Deleting...`);
     cardEdit.destroy();
-    buttonforNewEvent.disabled = false;
+    buttonForNewEvent.disabled = false;
   });
 });
