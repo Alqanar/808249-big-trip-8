@@ -1,7 +1,10 @@
-# Личный проект «Большое путешествие»
+# Личный проект «Большое путешествие» [![Build Status](https://travis-ci.org/Alqanar/808249-big-trip-8.svg?branch=master)](https://travis-ci.org/Alqanar/808249-big-trip-8)
 
 * Студент: [Екатерина Шибакова](https://up.htmlacademy.ru/ecmascript/8/user/808249).
 * Наставник: [Сергей Буртылев](https://htmlacademy.ru/profile/id3341).
+
+---
+Проект доступен по ссылке https://alqanar.github.io/big-trip/
 
 ---
 
