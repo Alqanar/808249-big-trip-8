@@ -5,3 +5,18 @@ node_js:
 
 notifications:
   email: false
+
+script:
+  - npm run test
+  - npm run build
+
+deploy:
+  provider: pages
+  github-token: $GITHUB_KEY
+  committer-from-gh: true
+  skip-cleanup: true
+  keep-history: true
+  local-dir: public
+  target-branch: gh-pages
+  on:
+    branch: master
